@@ -18,10 +18,12 @@ module test_bench;
 //	wire 	[7:0] 		data1, data2;
 //	wire 	[9:0] 		address1, address2;
 //	wire				rd_en1, rd_en2;
+//
+   wire[255:0] yRAMout1,yRAMout2;
 	
    
-   integer data_file,scan_file;
-   integer isram_file,isram_scan;
+  // integer data_file,scan_file;
+  // integer isram_file,isram_scan;
 /*
    initial
    begin
@@ -35,10 +37,10 @@ module test_bench;
 	initial	begin
 	  	//$dumpfile("Tut2.vcd"); // save waveforms in this file
 	  	//$dumpvars;  // saves all waveforms
-	    $readmemh("imem_data1.mem", top_mem.i_mem.Register); 	
+	    $readmemh("ymem_data1.mem", Top_mem.Y_mem.Register); 	
 			
 	    clock = 0; 
-	    reset = 0;
+	    reset = 1;
        WEPin = 0;
        WEAddress = 0;
        idataWrite = 0;
@@ -47,12 +49,15 @@ module test_bench;
 	    reset = 1; 
 		 #CLKPERIOD reset =1'b0; 		 // start the design at a known state
 
-	    #(50*CLKPERIOD) $finish;
+	    #(9*CLKPERIOD) $finish;
 	  end
 	
 	always #(CLKPERIOD/2) clock = ~clock;
+
+
+
 	top_with_mem	Top_mem(	
-			.clock(clock), .reset(reset), .iMem_WEPin(WEPin), .WEAddress(WEAddress),
+			.clock(clock), .reset(reset), .iMem_WEPin(WEPin), .iMem_WEAddress(WEAddress),
              .idataWrite(idataWrite),
  /*            
 	    .topmem_out_iMem_data1_1(IData1_1) ,.topmem_out_iMem_data1_2(IData1_2) ,
@@ -62,6 +67,8 @@ module test_bench;
          .topmem_out_iMem_data2_3(IData2_3), .topmem_out_iMem_data2_4(IData2_4) ,
             .topmem_out_iMem_data2_5(IData2_5) 
  */
+               .topmem_chgTxt_row(16'd0) ,    .topmem_chgTxt_col(16'd0) , 
+               .topmem_yMatOut1(yRAMout1) ,  .topmem_yMatOut2(yRAMout2) 
              );
 	
 	

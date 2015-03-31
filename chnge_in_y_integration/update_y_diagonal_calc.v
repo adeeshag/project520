@@ -14,12 +14,16 @@ always@(posedge clock or negedge reset)
         y_diag_temp <= 0;
         y_new_temp <= 0;
         y_old_temp <= 0;
+
+        y_new_diag<=48'b0;
         end
     else
         begin
         y_diag_temp <= y_diag;
         y_new_temp <= y_new;
         y_old_temp <= y_old;
+
+        y_new_diag<=y_new_diag_wire;
         end
     end
 always@(*)
@@ -39,17 +43,6 @@ always@(*)
     end
 addsub_cplx u1(.in1(addsub_in1),.in2(addsub_in2),.mode(sel_mode_addsub),.op(y_new_diag_wire));
 
-always@(posedge clock or negedge reset)
-    begin
-    if(!reset)
-            begin
-            y_new_diag<=48'b0;
-            end
-    else
-            begin
-            y_new_diag<=y_new_diag_wire;
-            end
-    end
 
 endmodule
 

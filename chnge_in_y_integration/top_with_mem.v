@@ -53,14 +53,6 @@ module top_with_mem(clock, reset,
             .top_yMatAddrOut1(wire_yAddrOut1),   .top_yMatAddrOut2(wire_yAddrOut2), 
 
 
-/* for testing 
-	    .top_out_iMem_data1_1(topmem_out_iMem_data1_1) ,.top_out_iMem_data1_2(topmem_out_iMem_data1_2) ,
-         .top_out_iMem_data1_3(topmem_out_iMem_data1_3) ,    .top_out_iMem_data1_4(topmem_out_iMem_data1_4) ,
-            .top_out_iMem_data1_5(topmem_out_iMem_data1_5) ,
-	    .top_out_iMem_data2_1(topmem_out_iMem_data2_1) ,.top_out_iMem_data2_2(topmem_out_iMem_data2_2) ,
-         .top_out_iMem_data2_3(topmem_out_iMem_data2_3), .top_out_iMem_data2_4(topmem_out_iMem_data2_4) ,
-            .top_out_iMem_data2_5(topmem_out_iMem_data2_5), 
-*/
 				 .iSRAM_Address1(iSRAM_Address1), .iSRAM_Address2(iSRAM_Address2) 
 			);
 

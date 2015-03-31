@@ -5,6 +5,8 @@
  * It takes two clock cycles to give output from the row computed.
  * If the input is an address. It just sends out the same thing.
  * Might need an extra ReadEnable signal in/out of the module.
+ * The value of yAD_readRowData only matters in the second Clk 
+ * cycle. 
  *
  * ***********************************/
 

@@ -51,7 +51,7 @@ reg [47:0] op_yVal1,op_yVal2;
 reg [47:0] temp_yVal;
 reg [15:0] op_y_row;
 reg [15:0] temp_chng_row, temp_chng_col;
-reg op_EX_EN;
+reg op_EX_EN,op_Done;
 reg temp_bit; // For use to test whether it's the second iter.
               // That is, the col,row value is being done now.
 
@@ -87,7 +87,7 @@ begin
    temp_chng_col = chng_col;
    temp_yVal = 48'b0;
    // Set next state
-   if((filt_EN)&(~op_Done)
+   if((filt_EN)&(~op_Done))
    begin
       next_state = s1;
    end//if
@@ -96,7 +96,7 @@ begin
       next_state = s0;
    end //-if-else
    //
-   end
+   end // s0
    s1: begin
    //Set outputs
    op_yVal1 = 48'bz;
@@ -200,7 +200,7 @@ begin
    //Shouldn't come here
    op_yVal2 = 48'bz;
    op_EX_EN = 1'b0;
-   op_y_row = 16'bz;;
+   op_y_row = 16'bz;
    end// if-else main nest
    // 
    
@@ -238,7 +238,7 @@ begin
       else
       begin
          //Now check for the diag element
-         if((ymem_data[255:240])==(temp_chng_col))) 
+         if((ymem_data[255:240])==(temp_chng_col)) 
          begin
             op_yVal1 = ymem_data[239:192];
             op_EX_EN = 1'b1;

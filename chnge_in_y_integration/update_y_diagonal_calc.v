@@ -1,4 +1,4 @@
-module y_update_diagonal_calc(y_diag,y_old,y_new,sel_old_or_new,sel_diag_or_sum,sel_mode_addsub,y_new_diag,clock,reset);
+module update_y_diagonal_calc(y_diag,y_old,y_new,sel_old_or_new,sel_diag_or_sum,sel_mode_addsub,y_new_diag,clock,reset);
 parameter width = 48;
 input [width-1 :0] y_diag,y_old,y_new;
 input [1:0] sel_old_or_new;
@@ -7,7 +7,7 @@ output reg [width-1 :0] y_new_diag;
 reg [width-1:0] y_diag_temp,y_new_temp,y_old_temp;
 reg [width-1 :0] addsub_in1,addsub_in2; 
 wire [width-1 :0] y_new_diag_wire;
-always@(posedge clock or negedge reset)
+always@(posedge clock)
     begin
     if(!reset)
         begin
@@ -41,7 +41,7 @@ always@(*)
     default:addsub_in2=48'b0;
     endcase
     end
-addsub_cplx u1(.in1(addsub_in1),.in2(addsub_in2),.mode(sel_mode_addsub),.op(y_new_diag_wire));
+addsub_cplx u1(.clock(clock),.reset(reset),.in1(addsub_in1),.in2(addsub_in2),.mode(sel_mode_addsub),.op(y_new_diag_wire));
 
 
 endmodule

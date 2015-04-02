@@ -25,15 +25,15 @@
 
 module filt_yVal(clock, reset, exModDone, 
      chng_row, chng_col, chng_real, chng_img,
-     ymem_data, filt_EN, yMemDataReadyNextCycle,
+     ymem_data1, ymem_data2, filt_EN, yMemDataReadyNextCycle,
      op_y_row, op_yVal1, op_yVal2, op_EX_EN, op_Done
      );
 
 /* Inputs and Outputs */
 input clock,reset,filt_EN,yMemDataReadyNextCycle,exModDone;
-input [15:0] chng_row, chng_col;
-input [23:0] chng_real,chng_img;
-input [255:0] ymem_data;
+input [15:0]  chng_row, chng_col;
+input [23:0]  chng_real,chng_img;
+input [255:0] ymem_data1,ymem_data2;
 
 output [47:0] op_yVal1,op_yVal2;
 output [15:0] op_y_row;
@@ -160,21 +160,37 @@ begin
    reg_op_Done  = 1'b0;
    reg_op_y_row = 16'hffff;
    //Calc y Diag1
-   if((&(ymem_data[255:253]))&(ymem_data[248:240]==temp_chng_row)) // all bits are high
+   if((&(ymem_data1[255:253]))&(ymem_data1[248:240]==temp_chng_row)) // all bits are high
    begin
-      reg_op_yVal1 = ymem_data[239:192];
+      reg_op_yVal1 = ymem_data1[239:192];
       //Now check the rest for the diag element
-      if((ymem_data[191:176])==(temp_chng_col)) 
+      if((ymem_data1[191:176])==(temp_chng_col)) 
       begin
-         reg_temp_yVal = ymem_data[175:128];
+         reg_temp_yVal = ymem_data1[175:128];
       end
-      else if((ymem_data[127:112])==(temp_chng_col)) 
+      else if((ymem_data1[127:112])==(temp_chng_col)) 
       begin
-         reg_temp_yVal = ymem_data[111:64];
+         reg_temp_yVal = ymem_data1[111:64];
       end
-      else if((ymem_data[63:48])==(temp_chng_col)) 
+      else if((ymem_data1[63:48])==(temp_chng_col)) 
       begin
-         reg_temp_yVal = ymem_data[47:0];
+         reg_temp_yVal = ymem_data1[47:0];
+      end
+      else if((ymem_data2[255:240])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[239:192];
+      end
+      else if((ymem_data2[191:176])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[175:128];
+      end
+      else if((ymem_data2[127:112])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[111:64];
+      end
+      else if((ymem_data2[63:48])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[47:0];
       end
       else
       begin
@@ -185,18 +201,34 @@ begin
       reg_op_EX_EN = 1'b1;
       //
    end
-   else if((&(ymem_data[191:189]))&(ymem_data[184:176]==temp_chng_row))
+   else if((&(ymem_data1[191:189]))&(ymem_data1[184:176]==temp_chng_row))
    begin
-      reg_op_yVal1 = ymem_data[175:128];
+      reg_op_yVal1 = ymem_data1[175:128];
 
       //Now check the rest for the diag element
-      if((ymem_data[127:112])==(temp_chng_col)) 
+      if((ymem_data1[127:112])==(temp_chng_col)) 
       begin
-         reg_temp_yVal   = ymem_data[111:64];
+         reg_temp_yVal   = ymem_data1[111:64];
       end
-      else if((ymem_data[63:48])==(temp_chng_col)) 
+      else if((ymem_data1[63:48])==(temp_chng_col)) 
       begin
-         reg_temp_yVal   = ymem_data[47:0];
+         reg_temp_yVal   = ymem_data1[47:0];
+      end
+      else if((ymem_data2[255:240])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[239:192];
+      end
+      else if((ymem_data2[191:176])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[175:128];
+      end
+      else if((ymem_data2[127:112])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[111:64];
+      end
+      else if((ymem_data2[63:48])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[47:0];
       end
       else
       begin
@@ -207,14 +239,30 @@ begin
       reg_op_EX_EN    = 1'b1;
       //
    end
-   else if((&(ymem_data[127:125]))&(ymem_data[120:112]==temp_chng_row)) 
+   else if((&(ymem_data1[127:125]))&(ymem_data1[120:112]==temp_chng_row)) 
    begin
-      reg_op_yVal1    = ymem_data[111:64];
+      reg_op_yVal1    = ymem_data1[111:64];
 
       //Now check the rest for the diag element
-      if((ymem_data[63:48])==(temp_chng_col)) 
+      if((ymem_data1[63:48])==(temp_chng_col)) 
       begin
-         reg_temp_yVal   = ymem_data[47:0];
+         reg_temp_yVal   = ymem_data1[47:0];
+      end
+      else if((ymem_data2[255:240])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[239:192];
+      end
+      else if((ymem_data2[191:176])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[175:128];
+      end
+      else if((ymem_data2[127:112])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[111:64];
+      end
+      else if((ymem_data2[63:48])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[47:0];
       end
       else
       begin
@@ -225,11 +273,32 @@ begin
       reg_op_EX_EN    = 1'b1;
       //
    end
-   else if((&(ymem_data[63:61]))&(ymem_data[56:48]==temp_chng_row)) 
+   else if((&(ymem_data1[63:61]))&(ymem_data1[56:48]==temp_chng_row)) 
    begin
-      reg_op_yVal1    = ymem_data[47:0];
+      reg_op_yVal1    = ymem_data1[47:0];
       reg_op_yVal2    = {chng_real,chng_img};
       reg_op_EX_EN    = 1'b1;
+
+      if((ymem_data2[255:240])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[239:192];
+      end
+      else if((ymem_data2[191:176])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[175:128];
+      end
+      else if((ymem_data2[127:112])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[111:64];
+      end
+      else if((ymem_data2[63:48])==(temp_chng_col)) 
+      begin
+         reg_temp_yVal = ymem_data2[47:0];
+      end
+      else
+      begin
+         reg_temp_yVal   = 48'b0;
+      end
    end
    else
    begin
@@ -296,13 +365,13 @@ begin
       else
       begin
          //Now check for the diag element
-         if((ymem_data[255:240])==(temp_chng_col)) 
+         if((ymem_data1[255:240])==(temp_chng_col)) 
          begin
             if(temp_exModDone)
             begin
                if(temp_bit)
                begin
-                  reg_op_yVal1       = ymem_data[239:192];
+                  reg_op_yVal1       = ymem_data1[239:192];
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
                   reg_op_Done        = 1'b1;
@@ -315,7 +384,7 @@ begin
                end
                else
                begin
-                  reg_op_yVal1       = ymem_data[239:192];
+                  reg_op_yVal1       = ymem_data1[239:192];
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
                   reg_op_Done        = 1'b0;
@@ -336,18 +405,18 @@ begin
                reg_op_Done     = 1'b0;
                reg_op_y_row    = 16'hffff;// keep fetching next row
 
-               reg_temp_yVal   = ymem_data[239:192];
+               reg_temp_yVal   = ymem_data1[239:192];
                next_state  = s3; 
             end // if-else of exModDone
          end
-         else if((ymem_data[191:176])==(temp_chng_col)) 
+         else if((ymem_data1[191:176])==(temp_chng_col)) 
          begin
             if(temp_exModDone)
             begin
 
                if(temp_bit)
                begin
-                  reg_op_yVal1          = ymem_data[175:128];
+                  reg_op_yVal1          = ymem_data1[175:128];
                   reg_op_yVal2          = 48'b0;
                   reg_op_EX_EN          = 1'b1;
                   reg_op_Done           = 1'b1;
@@ -360,7 +429,7 @@ begin
                end
                else
                begin
-                  reg_op_yVal1          = ymem_data[175:128];
+                  reg_op_yVal1          = ymem_data1[175:128];
                   reg_op_yVal2          = 48'b0;
                   reg_op_EX_EN          = 1'b1;
                   reg_op_Done           = 1'b0;
@@ -375,7 +444,7 @@ begin
             else
             begin
             //If execution isn't done
-                  reg_temp_yVal      = ymem_data[175:128];
+                  reg_temp_yVal      = ymem_data1[175:128];
                   reg_op_yVal1       = 48'b0;
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
@@ -384,13 +453,13 @@ begin
                   next_state         = s3;
             end // if-else of exModDone
          end
-         else if((ymem_data[127:112])==(temp_chng_col)) 
+         else if((ymem_data1[127:112])==(temp_chng_col)) 
          begin
             if (temp_exModDone)
             begin
                if(temp_bit)
                begin
-                  reg_op_yVal1       = ymem_data[111:64];
+                  reg_op_yVal1       = ymem_data1[111:64];
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
                   reg_op_Done        = 1'b1;
@@ -403,7 +472,7 @@ begin
                end
                else
                begin
-                  reg_op_yVal1       = ymem_data[111:64];
+                  reg_op_yVal1       = ymem_data1[111:64];
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
                   reg_op_Done        = 1'b0;
@@ -418,7 +487,7 @@ begin
             else
             begin
             //If execution isn't done
-                  reg_temp_yVal      = ymem_data[111:64];
+                  reg_temp_yVal      = ymem_data1[111:64];
                   reg_op_yVal1       = 48'b0;
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
@@ -430,7 +499,7 @@ begin
 /*
             if (exModDone)
             begin
-               op_yVal1    = ymem_data[111:64];
+               op_yVal1    = ymem_data1[111:64];
                op_EX_EN    = 1'b1;
 
                if(temp_bit)
@@ -453,7 +522,7 @@ begin
             else
             begin
             //If execution isn't done
-                  temp_yVal   = ymem_data[111:64];
+                  temp_yVal   = ymem_data1[111:64];
                   op_yVal1    = 48'b0;
                   op_yVal2    = 48'b0;
                   op_EX_EN    = 1'b1;
@@ -463,14 +532,14 @@ begin
             end // if-else of exModDone
 */
          end
-         else if((ymem_data[63:48])==(temp_chng_col)) 
+         else if((ymem_data1[63:48])==(temp_chng_col)) 
          begin
             if(temp_exModDone)
             begin
 
                if(temp_bit)
                begin
-                  reg_op_yVal1       = ymem_data[47:0];
+                  reg_op_yVal1       = ymem_data1[47:0];
                   reg_op_EX_EN       = 1'b1;
                   reg_op_yVal2       = 48'b0;
                   reg_op_Done        = 1'b1;
@@ -479,11 +548,11 @@ begin
                   reg_temp_chng_col  = 16'hffff;
                   reg_temp_chng_row  = 16'hffff;
                   reg_temp_bit       = 1'b0;
-                  next_state     = s0;
+                  next_state         = s0;
                end
                else
                begin
-                  reg_op_yVal1       = ymem_data[47:0];
+                  reg_op_yVal1       = ymem_data1[47:0];
                   reg_op_EX_EN       = 1'b1;
                   reg_op_yVal2       = 48'b0;
                   reg_op_Done        = 1'b0;
@@ -492,19 +561,19 @@ begin
                   reg_temp_chng_col  = chng_row;
                   reg_temp_chng_row  = chng_col;
                   reg_temp_bit       = 1'b1;
-                  next_state     = s1;
+                  next_state         = s1;
                end //if-else
             end
             else
             begin
             //If execution isn't done
-                  reg_temp_yVal      = ymem_data[47:0];
+                  reg_temp_yVal      = ymem_data1[47:0];
                   reg_op_yVal1       = 48'b0;
                   reg_op_yVal2       = 48'b0;
                   reg_op_EX_EN       = 1'b1;
                   reg_op_Done        = 1'b0;
                   reg_op_y_row       = 16'hffff;
-                  next_state     = s3;
+                  next_state         = s3;
             end // if-else of exModDone
          end
          else
@@ -514,14 +583,14 @@ begin
             reg_op_EX_EN             = 1'b0;
             reg_op_Done              = 1'b0;
             reg_op_y_row             = 16'hffff;
-            next_state           = s3;
+            next_state               = s3;
          //
          end //else-if for different ymem data
       end// if-else of |TempData
    end //-if
    else
    begin
-       next_state = s3; 
+       next_state     = s3; 
        reg_op_yVal1   = 48'b0;
        reg_op_yVal2   = 48'b0;
        reg_op_Done    = 1'b0;

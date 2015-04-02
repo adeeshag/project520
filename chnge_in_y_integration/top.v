@@ -1,87 +1,66 @@
 module top (clock, reset,
-	//    top_iMem_data1 ,top_iMem_data2, 
- //To Test
- /*
-	top_out_iMem_data1_1,top_out_iMem_data1_2,
-                        top_out_iMem_data1_3, top_out_iMem_data1_4,
-                            top_out_iMem_data1_5,
-	top_out_iMem_data2_1,top_out_iMem_data2_2,
-                        top_out_iMem_data2_3, top_out_iMem_data2_4,
-                           top_out_iMem_data2_5,
-  */
+
       top_chgTxt_row,top_chgTxt_col,
-      top_ySRAM_rowRead, 
+      top_chgTxt_real, top_chgTxt_img,
+      top_ySRAM_rowRead1,top_ySRAM_rowRead2, 
 
-//      top_yMatAddrIn1,top_yMatAddrIn2, 
       top_yMatAddrOut1,top_yMatAddrOut2, 
+      top_dataPathDoneFlag, top_filtYopDone,
+      top_opYval
 
-	   iSRAM_Address1 , iSRAM_Address2 
-       
 	   );
 /********** Module Inputs and Outputs **************/
 	   
 	input clock;
 	input	reset;
 	
-   input [15:0] top_chgTxt_row,top_chgTxt_col; //From change.txt
-//   input [10:0] top_yMatAddrIn1,top_yMatAddrIn2; //For YSRAM
-   input [255:0] top_ySRAM_rowRead; //For YSRAM
+   input [15:0]   top_chgTxt_row,top_chgTxt_col; //From change.txt
+   input [23:0]   top_chgTxt_real, top_chgTxt_img;
+   input [255:0]  top_ySRAM_rowRead1,top_ySRAM_rowRead2; //From Y SRAM
 	
-//	input [239:0] top_iMem_data1,top_iMem_data2; //For ISRAM
 
 
-/*
-	output 	[47:0] 	top_out_iMem_data1_1,top_out_iMem_data1_2,
-                        top_out_iMem_data1_3, top_out_iMem_data1_4,
-                            top_out_iMem_data1_5;
-	output 	[47:0] 	top_out_iMem_data2_1,top_out_iMem_data2_2,
-                        top_out_iMem_data2_3, top_out_iMem_data2_4,
-                           top_out_iMem_data2_5;
-*/
-   output [10:0] top_yMatAddrOut1,top_yMatAddrOut2; 
-
-	output [7:0] 	iSRAM_Address1,iSRAM_Address2;
+   output [10:0]  top_yMatAddrOut1,top_yMatAddrOut2; 
+   output [47:0]  top_opYval;
+   output         top_dataPathDoneFlag,top_filtYopDone;
 
 
 
-/************************ Wires *********************/	
+
+/************************ Wires and Regs*********************/	
  //  wire [255:0] top_ySRAM_rowRead;
+ wire          wire_execEnable,wire_dataOuNxtCycle, wire_execDoneFlag;
+ wire [47:0]   top_filtYval1,top_filtYval2; 
+ wire [15:0]   top_opRowNum_from_filtY;
    
 
-/***************** Modules Instan *******************/
+/***************** Modules Instantiation *******************/
 
-yAddrDecodr unit_yAD1 (.clock(clock), .reset(reset), 
-      .yAD_readRowNum(top_chgTxt_row),
-//      .yAD_readAddr1(top_yMatAddrIn1),  .yAD_readAddr2(top_yMatAddrIn2), 
-      .yAD_outAddr1(top_yMatAddrOut1),   .yAD_outAddr2(top_yMatAddrOut2),
-      .yAD_readRowData(top_ySRAM_rowRead)
+
+updateY_calc unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire_execEnable),
+                     .yInVal1(top_filtYval1), .yInVal2(top_filtYval2), 
+                     .op_yWriteVal(top_opYval), .op_DoneFlag(top_dataPathDoneFlag),
+                     .op_ExDoneFlag(wire_execDoneFlag)
+                    );
+
+
+filt_yVal unit_filtY1 ( .clock(clock), .reset(reset), .exModDone(wire_execDoneFlag), 
+     .chng_row(top_chgTxt_row), .chng_col(top_chgTxt_col),
+     .chng_real(top_chgTxt_real),.chng_img(top_chgTxt_img),
+     .ymem_data1(top_ySRAM_rowRead1), .ymem_data2(top_ySRAM_rowRead2), .filt_EN(1'b1),
+     .yMemDataReadyNextCycle(wire_dataOuNxtCycle),
+     .op_y_row(top_opRowNum_from_filtY),  .op_EX_EN(wire_execEnable), .op_Done(top_filtYopDone),
+     .op_yVal1(top_filtYval1), .op_yVal2(top_filtYval2)
+     );
+
+
+yAddrDecodr unit_yAD1 (.clock(clock), .reset(reset), .yAD_enable(1'b1),
+      .yAD_readRowNum(top_opRowNum_from_filtY), .yAD_readRowData(top_ySRAM_rowRead1), 
+      .yAD_outAddr1(top_yMatAddrOut1), .yAD_outAddr2(top_yMatAddrOut2), // send to yMem 
+      .yAD_dataOutNextCycle(wire_dataOuNxtCycle)
       );
-/*
-   getYMatAddress U1(.clock(clock), .reset(reset), 
-                  .gYMA_row(15'd0), .gYMA_readData(top_ySRAM_rowRead),
-                  .gYMA_row_addr1(top_yMatAddrOut1), .gYMA_row_addr2(top_yMatAddrOut2) );
-*/
 
-/*
-	Engine Data1 (.clock(clock), .reset(reset),
-	    .eng_iMem_data1(top_iMem_data1) ,.eng_iMem_data2(top_iMem_data2) ,
-
-	    .out_eng_iMem_data1_1(top_out_iMem_data1_1) ,.out_eng_iMem_data1_2(top_out_iMem_data1_2) ,
-     .out_eng_iMem_data1_3(top_out_iMem_data1_3) ,    .out_eng_iMem_data1_4(top_out_iMem_data1_4) ,
-            .out_eng_iMem_data1_5(top_out_iMem_data1_5) ,
-	    .out_eng_iMem_data2_1(top_out_iMem_data2_1) ,.out_eng_iMem_data2_2(top_out_iMem_data2_2) ,
-         .out_eng_iMem_data2_3(top_out_iMem_data2_3) ,    .out_eng_iMem_data2_4(top_out_iMem_data2_4) ,
-            .out_eng_iMem_data2_5(top_out_iMem_data2_5) 
-       );
-*/
-/*
-	Engine Data1 (.clock(clock), .reset(reset), .new(new), .search(search), .Found(Found1), .NotFound(NotFound1),
-		     .data(data1), .ETX(ETX1),  .match(match1), .sp(sp1), .CharCount(CharCount1));
-*/	
 	
-	Controller Ctrl (	.clock(clock),  .reset(reset), 
-					.Address1(iSRAM_Address1), .Address2(iSRAM_Address2) 
-					);
 
 endmodule
 

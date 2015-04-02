@@ -30,7 +30,7 @@ module tb;
 	initial	begin
 	  	//$dumpfile("Tut2.vcd"); // save waveforms in this file
 	  	//$dumpvars;  // saves all waveforms
-	    //$readmemh("ymem_data1.mem", Top_mem.Y_mem.Register); 	
+	   //$readmemh("ymem_data1.mem", Top_mem.Y_mem.Register); 	
        
 	    clock      = 0; 
 	    reset      = 0;

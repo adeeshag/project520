@@ -20,61 +20,101 @@
 
 module updateY_calc(clock,reset, executeEnableBit,
                      yInVal1, yInVal2, 
-                     op_yWriteVal, op_DoneFlag
+                     op_yWriteVal, op_DoneFlag, op_ExDoneFlag
                     );
 /* Inputs and Outputs */
 
-input clock,reset,executeEnableBit;
-input [47:0] yInVal1,yInVal2;
+input          clock,reset,executeEnableBit;
+input [47:0]   yInVal1,yInVal2;
 
-output [47:0] op_yWriteVal;
-output op_DoneFlag;
+output [47:0]  op_yWriteVal;
+output         op_DoneFlag,op_ExDoneFlag;
 
 
 /* Wires and Regs */
-wire wire_DoneFlag_CmplxMod;
-wire [47:0] wire_addsubOut;
+wire        wire_DoneFlag_CmplxMod;
 
-reg [47:0] temp_yComputedVal;
-reg reg_nextMode;
+reg [47:0]  op_yWriteVal;
+reg         op_DoneFlag,op_ExDoneFlag;
+
+   //Stored in Registers
+reg [47:0]  temp_yComputedVal;
+reg         temp_nextMode;
+
+   //Wires
+reg [47:0] reg_addsubOut;
+reg [47:0] reg_addsub_in1,reg_addsub_in2;
+ 
 
 /* Main Circuit Logic */
-/*
 always@(posedge clock)
 begin
-   if(~(reset&executeEnableBit)) //NAND
+   if(~(reset&executeEnableBit)) // Reset or Enable are 0
    begin
-      op_yWriteVal <= 48'bz;
-      op_DoneFlag <= 1'b0;
-      reg_nextMode <= 1'b1;
+      op_yWriteVal      <= 48'b0;
+      op_DoneFlag       <= 1'b0;
+      temp_nextMode     <= 1'b1; // always start with subtract first
+
+      temp_yComputedVal <= 48'b0;
+      op_ExDoneFlag     <=  1'b0;
       
    end//if-reset
    else
    begin
       if(wire_DoneFlag_CmplxMod) 
       begin
-         op_yWriteVal <= wire_addsubOut; 
-         op_DoneFlag <= 1'b1;
+         if(temp_nextMode)
+         begin
+            op_ExDoneFlag  <= 1'b1;
+            temp_nextMode  <= 1'b0; // set to adder next
+            op_DoneFlag    <= 1'b0;
+            op_yWriteVal   <= 48'b0;
+         end
+         else // temp_nextMode==0
+         begin
+            op_yWriteVal   <= reg_addsubOut;
+            temp_nextMode  <= 1'b1; // Reset to subtractor next
+            op_ExDoneFlag  <= 1'b1;
+            op_DoneFlag    <= 1'b1;
+         end // temp_nextMode
+
       end//---if wire_DoneFlag_CmplxMod is high
       else
       begin
-         op_yWriteVal <= 48'bz;
-         op_DoneFlag <= 1'b0;
+         op_yWriteVal   <= 48'b0;
+         op_DoneFlag    <= 1'b0;
+         op_ExDoneFlag  <= 1'b0;
+         // temp_nextMode should retain it's previous value
       end// else wire_DoneFlag_CmplxMod
 
-      //Deciding inputs and mode to addsub module
-      
+      temp_yComputedVal <= reg_addsubOut;
 
    end//-- else-reset
 
 end//posedge clk
 
+      //Deciding inputs and mode to addsub module
+always@(*)
+begin
+   reg_addsub_in1     = yInVal1;
 
-*/
+   if(temp_nextMode)
+   begin
+      reg_addsub_in2  = yInVal2;
+   end
+   else
+   begin
+      reg_addsub_in2  = temp_yComputedVal;
+   end
+
+
+end// always@(*)
+
+
 /* Modules */
 
-addsub_cplx u1(.clock(clock),.reset(reset),.in1(addsub_in1),.in2(addsub_in2),.mode(sel_mode_addsub),
-               .op(y_new_diag_wire),.doneflag(wire_DoneFlag_CmplxMod),.addsub_enable(executeEnableBit)
+addsub_cplx u1 (.clock(clock),.reset(reset),.in1(reg_addsub_in1),.in2(reg_addsub_in2),.mode(temp_nextMode),
+                  .op(reg_addsubOut),.done_flag(wire_DoneFlag_CmplxMod),.enable(executeEnableBit)
                );
 
 

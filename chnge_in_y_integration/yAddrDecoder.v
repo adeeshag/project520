@@ -12,14 +12,14 @@
 
 
 
-module yAddrDecodr(clock, reset, 
+module yAddrDecodr(clock, reset, yAD_enable,
       yAD_readRowNum,yAD_readRowData,
       yAD_outAddr1,yAD_outAddr2,
       yAD_dataOutNextCycle
       );
 
 /* Inputs and Outputs */
-input clock,reset;
+input clock,reset, yAD_enable;
 input [15:0] yAD_readRowNum;
 input [255:0] yAD_readRowData;
 
@@ -52,7 +52,7 @@ begin
       end//-if &readRow
       else
       begin
-         if({(&yAD_outAddr1)&(&yAD_outAddr2)})
+         if({(&yAD_outAddr1)&(&yAD_outAddr2)} | reg_readEn)
          begin
             yAD_outAddr1 <= (yAD_readRowNum>>4);
             yAD_outAddr2 <= 11'h7FF;

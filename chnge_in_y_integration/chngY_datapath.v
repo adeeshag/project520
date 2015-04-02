@@ -39,7 +39,7 @@ reg [47:0] temp_yComputedVal;
 reg reg_nextMode;
 
 /* Main Circuit Logic */
-
+/*
 always@(posedge clock)
 begin
    if(~(reset&executeEnableBit)) //NAND
@@ -70,7 +70,7 @@ begin
 end//posedge clk
 
 
-
+*/
 /* Modules */
 
 addsub_cplx u1(.clock(clock),.reset(reset),.in1(addsub_in1),.in2(addsub_in2),.mode(sel_mode_addsub),
@@ -79,7 +79,6 @@ addsub_cplx u1(.clock(clock),.reset(reset),.in1(addsub_in1),.in2(addsub_in2),.mo
 
 
 endmodule
-
 
 
 

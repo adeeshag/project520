@@ -29,7 +29,7 @@ module top (clock, reset,
 
 /************************ Wires and Regs*********************/	
  //  wire [255:0] top_ySRAM_rowRead;
- wire          wire_execEnable,wire_dataOuNxtCycle, wire_execDoneFlag;
+ wire          wire_execEnable,wire_dataOuNxtCycle, wire_execDoneFlag,wire_yAD_Enable;
  wire [47:0]   top_filtYval1,top_filtYval2; 
  wire [15:0]   top_opRowNum_from_filtY;
    
@@ -44,7 +44,7 @@ updateY_calc unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire
                     );
 
 
-filt_yVal unit_filtY1 ( .clock(clock), .reset(reset), .exModDone(wire_execDoneFlag), 
+filt_yVal unit_filtY1 ( .clock(clock), .reset(reset), .exModDone(wire_execDoneFlag), .op_DataEN(wire_yAD_Enable), 
      .chng_row(top_chgTxt_row), .chng_col(top_chgTxt_col),
      .chng_real(top_chgTxt_real),.chng_img(top_chgTxt_img),
      .ymem_data1(top_ySRAM_rowRead1), .ymem_data2(top_ySRAM_rowRead2), .filt_EN(1'b1),
@@ -54,7 +54,7 @@ filt_yVal unit_filtY1 ( .clock(clock), .reset(reset), .exModDone(wire_execDoneFl
      );
 
 
-yAddrDecodr unit_yAD1 (.clock(clock), .reset(reset), .yAD_enable(1'b1),
+yAddrDecodr unit_yAD1 (.clock(clock), .reset(reset), .yAD_enable(wire_yAD_Enable),
       .yAD_readRowNum(top_opRowNum_from_filtY), .yAD_readRowData(top_ySRAM_rowRead1), 
       .yAD_outAddr1(top_yMatAddrOut1), .yAD_outAddr2(top_yMatAddrOut2), // send to yMem 
       .yAD_dataOutNextCycle(wire_dataOuNxtCycle)

@@ -24,13 +24,13 @@
  * **********************************************************/
 
 module filt_yVal(clock, reset, exModDone, 
-     chng_row, chng_col, chng_real, chng_img,
+     chng_row, chng_col, chng_real, chng_img, dpModDoneFlag,
      ymem_data1, ymem_data2, filt_EN, yMemDataReadyNextCycle,
      op_y_row, op_yVal1, op_yVal2, op_EX_EN, op_Done, op_DataEN
      );
 
 /* Inputs and Outputs */
-input clock,reset,filt_EN,yMemDataReadyNextCycle,exModDone;
+input clock,reset,filt_EN,yMemDataReadyNextCycle,exModDone, dpModDoneFlag;
 input [15:0]  chng_row, chng_col;
 input [23:0]  chng_real,chng_img;
 input [255:0] ymem_data1,ymem_data2;
@@ -150,13 +150,10 @@ begin
       reg_op_y_row    = temp_chng_row;
       reg_temp_yVal   = 48'b0;
 
-
-
-
-
       // Set next state
       if(yMemDataReadyNextCycle) // get this from the yAddrDecoder.v 
       begin
+         reg_op_dataEN   = 1'b1;
          casex({temp_bit,temp_exModDone})
          2'b00:begin
             next_state = s2;
@@ -178,20 +175,34 @@ begin
       end// -if
       else
       begin
+
+      /*
          casex({temp_bit,exModDone})
          2'b00:begin
-            reg_op_EX_EN    = 1'b1;
+            reg_op_dataEN    = 1'b1;
+            reg_op_EX_EN     = op_EX_EN;// prev value
          end// b00  
          2'b01:begin
-            reg_op_EX_EN    = 1'b1;
+            reg_op_EX_EN     = op_EX_EN;// prev value
+            reg_op_dataEN    = 1'b0;
          end// b01  
          2'b10:begin
-            reg_op_EX_EN    = 1'b0; //important- check this.
+            reg_op_EX_EN     = op_EX_EN;// prev value
+            reg_op_dataEN    = 1'b0;
          end// b10  
          2'b11:begin
-            reg_op_EX_EN    = 1'b1; //Imp
+            reg_op_EX_EN     = op_EX_EN;// prev value
+            reg_op_dataEN    = 1'b1;
          end// b11  
          endcase
+
+         */
+         if(dpModDoneFlag)
+            reg_op_dataEN = 1'b1;
+         else if(!temp_bit)
+            reg_op_dataEN = 1'b1;
+         else
+            reg_op_dataEN = 1'b0;
 
          next_state = s1;
       end //else-if
@@ -410,7 +421,7 @@ begin
                reg_op_EX_EN       = 1'b1;
                reg_op_Done        = 1'b0;
                reg_op_y_row       = chng_col; 
-               reg_op_dataEN      = 1'b1;
+               reg_op_dataEN      = 1'b0; // Don't fetch yet
 
                reg_temp_chng_col  = chng_row;
                reg_temp_chng_row  = chng_col;

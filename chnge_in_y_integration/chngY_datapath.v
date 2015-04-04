@@ -33,19 +33,20 @@ output         op_DoneFlag,op_ExDoneFlag;
 
 /* Wires and Regs */
 wire        wire_DoneFlag_CmplxMod;
+wire        wire_useless_now;
 
-reg        op_ExDoneFlag;
+wire         op_ExDoneFlag;
 
 reg [47:0]  op_yWriteVal;
 reg         op_DoneFlag;
 
    //Stored in Registers
-reg [47:0]  temp_yComputedVal;
+reg  [47:0]  temp_yComputedVal;
 reg         temp_nextMode;
 
    //Wires
 wire [47:0] wire_addsubOut;
-reg [47:0] reg_addsub_in1,reg_addsub_in2;
+reg  [47:0] reg_addsub_in1,reg_addsub_in2;
  
 
 /* Main Circuit Logic */
@@ -55,7 +56,7 @@ begin
    begin
       op_yWriteVal      <= 48'b0;
       op_DoneFlag       <= 1'b0;
-      op_ExDoneFlag     <= 1'b0;
+     // op_ExDoneFlag     <= 1'b0;
       temp_nextMode     <= 1'b1; // always start with subtract first
 
       temp_yComputedVal <= 48'b0;
@@ -66,13 +67,13 @@ begin
       if(wire_DoneFlag_CmplxMod) 
       begin
          temp_yComputedVal <= wire_addsubOut;
-         op_ExDoneFlag  <= 1'b1;
+        // op_ExDoneFlag     <= 1'b1;
 
          if(temp_nextMode)
          begin
             temp_nextMode  <= 1'b0; // set to adder next
             op_DoneFlag    <= 1'b0;
-            op_yWriteVal   <= 48'b0;
+            op_yWriteVal   <= wire_addsubOut; // let it keep putting out data either way
          end
          else // temp_nextMode==0
          begin
@@ -84,9 +85,9 @@ begin
       end//---if wire_DoneFlag_CmplxMod is high
       else
       begin
-         op_yWriteVal   <= 48'b0;
+         op_yWriteVal   <= wire_addsubOut;
          op_DoneFlag    <= 1'b0;
-         op_ExDoneFlag  <= 1'b0;
+        // op_ExDoneFlag  <= 1'b0;
          // temp_nextMode should retain it's previous value
       end// else wire_DoneFlag_CmplxMod
 
@@ -98,6 +99,7 @@ end//posedge clk
       //Deciding inputs and mode to addsub module
 always@(*)
 begin
+
    reg_addsub_in1     = yInVal1;
 
    if(temp_nextMode)
@@ -112,16 +114,17 @@ begin
 
 end// always@(*)
 
+assign op_ExDoneFlag = wire_DoneFlag_CmplxMod;
 
 /* Modules */
 
 addsub_cplx u1 (.clock(clock),.reset(reset),.in1(reg_addsub_in1),.in2(reg_addsub_in2),.mode(temp_nextMode),
-                  .op(wire_addsubOut),.done_flag(wire_DoneFlag_CmplxMod),.enable(executeEnableBit)
+                  .op(wire_addsubOut),.done_flag(wire_useless_now),.enable(executeEnableBit)
                );
 
+counterMod cnt_mod( .clock(clock), .reset(reset), .countEN(executeEnableBit),
+                        .op_done(wire_DoneFlag_CmplxMod));
 
 endmodule
-
-
 
 

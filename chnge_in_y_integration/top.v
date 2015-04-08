@@ -44,7 +44,7 @@ updateY_calc unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire
                     );
 
 
-filt_yVal unit_filtY1 (.clock(clock), .reset(reset), .exModDone(wire_execDoneFlag), .op_DataEN(wire_yAD_Enable), 
+updateY_control unit_controlY1 (.clock(clock), .reset(reset), .exModDone(wire_execDoneFlag), .op_DataEN(wire_yAD_Enable), 
      .chng_row(top_chgTxt_row), .chng_col(top_chgTxt_col ), .dpModDoneFlag(top_dataPathDoneFlag),
      .chng_real(top_chgTxt_real),.chng_img(top_chgTxt_img),
      .ymem_data1(top_ySRAM_rowRead1), .ymem_data2(top_ySRAM_rowRead2), .filt_EN(1'b1),

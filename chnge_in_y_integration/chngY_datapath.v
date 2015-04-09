@@ -78,14 +78,12 @@ begin
          temp_yComputedVal    <= 48'b0;
       end
 
-      //if((|yInVal1) & (|yInVal2)) // both are non zeros
       if(both_valid)
       begin
          op_ExDoneFlag     <= 1'b1; // it'll be done next cycle
          op_DoneFlag       <= 1'b0;
          temp_nextMode     <= 1'b0;
       end//both !=0
-      //else if((|yInVal1) & (~(|yInVal2))) // yIn1 is non zero and yIn2 is 0. diag element
       else if(diag_valid)
       begin
          op_ExDoneFlag     <= 1'b1; // it'll be done next cycle

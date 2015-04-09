@@ -23,7 +23,7 @@
  *
  * **********************************************************/
 
-module updateY_control(clock, reset, exModDone, 
+module updateY1_control(clock, reset, exModDone, 
      chng_row, chng_col, chng_real, chng_img, dpModDoneFlag,
      ymem_data1, ymem_data2, filt_EN, yMemDataReadyNextCycle,
      op_y_row, op_yVal1, op_yVal2, op_EX_EN, op_Done, op_DataEN
@@ -198,7 +198,7 @@ begin
          //end if-else
          //
       end
-      else if((&(ymem_data1[191:189]))&(ymem_data1[183:176]==chng_row))
+      else if((&(ymem_data1[191:189]))&(ymem_data1[187:176]==chng_row))
       begin
          reg_op_yVal1 = ymem_data1[175:128];
 
@@ -635,7 +635,7 @@ begin
          reg_op_yVal2    = 48'b0;
          reg_op_Done     = 1'b0;
          reg_op_y_row    = chng_col;
-         reg_temp_yVal   = 48'b0; // retain old value
+         reg_temp_yVal   = temp_yVal; // retain old value
          reg_op_dataEN   = 1'b1; // start fetching data
          reg_op_EX_EN    = 1'b0;
 
@@ -649,7 +649,7 @@ begin
          reg_op_yVal2    = 48'b0;
          reg_op_Done     = 1'b0;
          reg_op_y_row    = chng_col;
-         reg_temp_yVal   = 48'b0; // retain old value
+         reg_temp_yVal   = temp_yVal; // retain old value
          reg_op_dataEN   = 1'b1; // start fetching data
          reg_op_EX_EN    = 1'b0;
 
@@ -661,7 +661,7 @@ begin
          reg_op_yVal2    = 48'b0;
          reg_op_Done     = 1'b0;
          reg_op_y_row    = chng_col;
-         reg_temp_yVal   = 48'b0; // retain old value
+         reg_temp_yVal   = temp_yVal; // retain old value
          reg_op_dataEN   = 1'b1; // start fetching data
          reg_op_EX_EN    = 1'b1; // this can be either exModDone or data isn't ready
 
@@ -673,481 +673,45 @@ begin
 /***********************     S5       ********************/
    s5: begin
    //s5
-   //
+      reg_op_yVal2    = {chng_real,chng_img};
+      reg_op_Done     = 1'b0;
+      reg_op_y_row    = 16'hffff;
+      reg_temp_yVal   = temp_yVal; // retain old value
+      reg_op_dataEN   = 1'b0; // fetching data is done 
+      reg_op_EX_EN    = 1'b1; // this can be either exModDone or data isn't ready
+
+
       if((&(ymem_data1[255:253]))&(ymem_data1[247:240]==chng_col)) // all bits are high
       begin
          reg_op_yVal1 = ymem_data1[239:192];
-         //Now check the rest for the diag element
-         if((ymem_data1[191:176])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data1[175:128];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data1[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data1[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data1[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data1[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[255:240])==(chng_row)) 
-         begin
-            reg_op_dataEN   = 1'b0;
-            reg_temp_yVal = ymem_data2[239:192];
-         end
-         else if((ymem_data2[191:176])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[175:128];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else
-         begin
-            reg_temp_yVal   = 48'b0;
-            reg_op_dataEN   = 1'b1;
-         end
-         //end if-else
-         //
       end
       else if((&(ymem_data1[191:189]))&(ymem_data1[183:176]==chng_col))
       begin
          reg_op_yVal1 = ymem_data1[175:128];
-
-         //Now check the rest for the diag element
-         if((ymem_data1[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal   = ymem_data1[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data1[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal   = ymem_data1[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[255:240])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[239:192];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[191:176])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[175:128];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else
-         begin
-            reg_temp_yVal = 48'b0;
-            reg_op_dataEN   = 1'b1;
-         end
-         //end if-else
-         //
       end
       else if((&(ymem_data1[127:125]))&(ymem_data1[119:112]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[111:64];
-
-         //Now check the rest for the diag element
-         if((ymem_data1[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal   = ymem_data1[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[255:240])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[239:192];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[191:176])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[175:128];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else
-         begin
-            reg_temp_yVal   = 48'b0;
-            reg_op_dataEN   = 1'b1;
-         end
-         //end if-else
-         //
       end
       else if((&(ymem_data1[63:61]))&(ymem_data1[55:48]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[47:0];
-
-         if((ymem_data2[255:240])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[239:192];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[191:176])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[175:128];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[127:112])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[111:64];
-            reg_op_dataEN   = 1'b0;
-         end
-         else if((ymem_data2[63:48])==(chng_row)) 
-         begin
-            reg_temp_yVal = ymem_data2[47:0];
-            reg_op_dataEN   = 1'b0;
-         end
-         else
-         begin
-            reg_temp_yVal   = 48'b0;
-            reg_op_dataEN   = 1'b1;
-         end
       end
       else
       begin
       //Shouldn't come here
-      reg_op_yVal2       = 48'bz;
+      reg_op_yVal1       = 48'bz;
       reg_op_y_row       = 16'hffff; // invalid
       reg_op_dataEN      = 1'b0;
       reg_op_EX_EN       = 1'b0;
       end// if-else main nest
-      
-      // Set next state
-      reg_op_yVal2    = {chng_real,chng_img};
-      reg_op_EX_EN    = 1'b1;
-      reg_op_Done     = 1'b0;
 
-      next_state = s6;
-   //
+      next_state =   s6;
    end //s5
 
 /***********************     S6       ********************/
    s6: begin
    //s6
-   //
-      if(|temp_yVal)
-      begin
-         if(exModDone)
-         begin
-            reg_op_yVal1       = temp_yVal;
-            reg_op_yVal2       = 48'b0;
-            reg_op_EX_EN       = 1'b1; // Calculate second part
-            reg_op_Done        = 1'b0;
-            reg_op_y_row       = 16'hffff; 
-            reg_op_dataEN      = 1'b0; //Don't fetch data till next EX is done
-
-            reg_temp_yVal      = temp_yVal; // maintain the data
-
-            next_state         = s6;
-         end
-         else// --else-reg_-exmodDone
-         begin
-         //If execution isn't done but data is found
-            reg_op_yVal1    = 48'b0; // don't matter
-            reg_op_yVal2    = 48'b0;
-            reg_op_EX_EN    = 1'b1;
-            reg_op_Done     = 1'b0;
-            reg_op_y_row    = 16'hffff; 
-            reg_op_dataEN   = 1'b0;
-
-            reg_temp_yVal   = temp_yVal; // maintain the data
-            next_state      = s6; // stay in s3
-         end // if-else of exModDone
-      end// end-if of |temp_yVal
-      else
-      begin
-         //Now check for the diag element
-         if((ymem_data1[255:240])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1       = ymem_data1[239:192];
-               reg_op_yVal2       = 48'b0;
-               reg_op_EX_EN       = 1'b1;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0; 
-
-               reg_temp_yVal      = ymem_data1[239:192];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal   = ymem_data1[239:192];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data1[191:176])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1          = ymem_data1[175:128];
-               reg_op_yVal2          = 48'b0;
-               reg_op_EX_EN          = 1'b1;
-               reg_op_Done           = 1'b0;
-               reg_op_y_row          = 16'hffff;// Don't fetch 
-               reg_op_dataEN         = 1'b0;
-
-               reg_temp_yVal         = ymem_data1[175:128];
-
-               next_state            = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data1[175:128];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data1[127:112])==(chng_col)) 
-         begin
-            if (exModDone)
-            begin
-               reg_op_yVal1       = ymem_data1[111:64];
-               reg_op_yVal2       = 48'b0;
-               reg_op_EX_EN       = 1'b1;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal      = ymem_data1[111:64];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data1[111:64];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data1[63:48])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1       = ymem_data1[47:0];
-               reg_op_EX_EN       = 1'b1;
-               reg_op_yVal2       = 48'b0;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal      = ymem_data1[47:0];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data1[47:0];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data2[255:240])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1       = ymem_data2[239:192];
-               reg_op_yVal2       = 48'b0;
-               reg_op_EX_EN       = 1'b1;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0; 
-
-               reg_temp_yVal      = ymem_data2[239:192];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal   = ymem_data2[239:192];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data2[191:176])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1          = ymem_data2[175:128];
-               reg_op_yVal2          = 48'b0;
-               reg_op_EX_EN          = 1'b1;
-               reg_op_Done           = 1'b0;
-               reg_op_y_row          = 16'hffff;// Don't fetch 
-               reg_op_dataEN         = 1'b0;
-
-               reg_temp_yVal         = ymem_data2[175:128];
-
-               next_state            = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data2[175:128];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data2[127:112])==(chng_col)) 
-         begin
-            if (exModDone)
-            begin
-               reg_op_yVal1       = ymem_data2[111:64];
-               reg_op_yVal2       = 48'b0;
-               reg_op_EX_EN       = 1'b1;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal      = ymem_data2[111:64];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data2[111:64];
-
-               next_state  = s7; 
-            end // if-else of exModDone
-         end
-         else if((ymem_data2[63:48])==(chng_col)) 
-         begin
-            if(exModDone)
-            begin
-               reg_op_yVal1       = ymem_data2[47:0];
-               reg_op_EX_EN       = 1'b1;
-               reg_op_yVal2       = 48'b0;
-               reg_op_Done        = 1'b0;
-               reg_op_y_row       = 16'hffff;
-               reg_op_dataEN      = 1'b0;
-
-               reg_temp_yVal      = ymem_data2[47:0];
-
-               next_state         = s7;
-            end
-            else
-            begin
-            //If execution isn't done
-               reg_op_yVal1    = 48'b0;
-               reg_op_yVal2    = 48'b0;
-               reg_op_EX_EN    = 1'b1;
-               reg_op_Done     = 1'b0;
-               reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN   = 1'b0;
-
-               reg_temp_yVal   = ymem_data2[47:0];
-
-               next_state  = s6; 
-            end // if-else of exModDone
-         end
-         else // DATA NOT FOUND. SEARCH
-         begin
-            reg_op_yVal1             = 48'b0;
-            reg_op_yVal2             = 48'b0;
-            reg_op_Done              = 1'b0;
-            reg_op_y_row             = 16'hffff; //fetch next row
-            reg_op_dataEN            = 1'b1;
-
-            reg_temp_yVal            = 48'b0;
-
-            reg_op_EX_EN             = 1'b1; // let it keep executing because it shouldn't lose whether
-                                             // or not it has to add or
-                                             // subtract. if we reset, it'll
-                                             // reset to subtract.
-
-            next_state               = s6;
-         //
-         end //else-if for different ymem data search
-      end// if-else of |TempData
-
-   //
-   //
       reg_op_yVal2    = 48'b0;
       reg_op_Done     = 1'b0;
       reg_op_y_row    = 16'hffff;

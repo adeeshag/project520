@@ -37,7 +37,7 @@ module top (clock, reset,
 /***************** Modules Instantiation *******************/
 
 
-updateY_calc unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire_execEnable),
+updateY_datapath unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire_execEnable),
                      .yInVal1(top_filtYval1), .yInVal2(top_filtYval2), 
                      .op_yWriteVal(top_opYval), .op_DoneFlag(top_dataPathDoneFlag),
                      .op_ExDoneFlag(wire_execDoneFlag)

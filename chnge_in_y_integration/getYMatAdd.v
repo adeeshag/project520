@@ -1,5 +1,14 @@
-/*    Combinational Logic Ckt                   *
- *    Module that gets Y Matrix Read Addresses. */
+/* ************************************************    
+ *    Combinational Logic Ckt                  
+ *    
+ *    Module that gets Y Matrix Read Addresses.
+ *    Inputs: 1. readEnable
+ *            2. 256 Bits read data
+ *            3. read Row number
+ *
+ *    Output: 1. Outputs 48 bit Row address where the data is present
+ *
+ *    ********************************************/
 
 module getYMatAddress(readEnable, //clock, reset, 
                   gYMA_row, gYMA_readData, gYMA_row_addr1);//, gYMA_row_addr2 );
@@ -42,20 +51,5 @@ begin
       gYMA_row_addr1 = 11'd0;
 end //always@ block 
 
-/*
-always@(posedge clock or reset)
-begin
-   if(!reset)
-   begin
-      gYMA_row_addr1 <= 11'd0;
-      gYMA_row_addr2 <= 11'd0;
-   end
-   else
-   begin
-      gYMA_row_addr1 <= temp_addr1;
-      gYMA_row_addr2 <= (temp_addr1 + 1);
-   end
-end//always@
-*/
-
 endmodule
+

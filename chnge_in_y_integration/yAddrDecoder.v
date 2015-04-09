@@ -36,12 +36,13 @@ reg [15:0] temp_oldRow;
 
 always@(posedge clock)
 begin
-   if(!reset & !yAD_enable) //synchronous reset
+   if(!reset | !yAD_enable) //synhronous reset
    begin
       yAD_outAddr1         <= 11'h7FF; 
       yAD_outAddr2         <= 11'h7FF;
       yAD_dataOutNextCycle <= 1'b0;
       temp_bit             <= 1'b1;
+      reg_readEn           <= 1'b0;
    end
    else
    begin

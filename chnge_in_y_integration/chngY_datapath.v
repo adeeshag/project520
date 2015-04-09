@@ -18,7 +18,7 @@
  *
  * **********************************************************/
 
-module updateY_calc(clock,reset, executeEnableBit,
+module updateY_datapath(clock,reset, executeEnableBit,
                      yInVal1, yInVal2, 
                      op_yWriteVal, op_DoneFlag, op_ExDoneFlag
                     );
@@ -32,17 +32,16 @@ output         op_DoneFlag,op_ExDoneFlag;
 
 
 /* Wires and Regs */
-wire        wire_DoneFlag_CmplxMod;
-wire        wire_useless_now;
+wire        wire_DoneFlag_CmplxMod,both_valid,diag_valid;
 
-wire         op_ExDoneFlag;
+reg         op_ExDoneFlag;
 
 reg [47:0]  op_yWriteVal;
 reg         op_DoneFlag;
 
    //Stored in Registers
-reg  [47:0]  temp_yComputedVal;
-reg         temp_nextMode;
+reg  [47:0]  temp_yComputedVal,temp_addsubout;
+reg         temp_nextMode,temp_curMode;
 
    //Wires
 wire [47:0] wire_addsubOut;
@@ -56,40 +55,41 @@ begin
    begin
       op_yWriteVal      <= 48'b0;
       op_DoneFlag       <= 1'b0;
-     // op_ExDoneFlag     <= 1'b0;
+      op_ExDoneFlag     <= 1'b0;
       temp_nextMode     <= 1'b1; // always start with subtract first
 
-      temp_yComputedVal <= 48'b0;
+      temp_yComputedVal <= 48'd0;
+      temp_addsubout    <= 48'b0;
       
    end//if-reset
    else
    begin
-      if(wire_DoneFlag_CmplxMod) 
+      
+      temp_addsubout    <= wire_addsubOut;
+
+      op_yWriteVal      <= temp_addsubout; // just so that we can always see the output
+
+      //if((|yInVal1) & (|yInVal2)) // both are non zeros
+      if(both_valid)
       begin
-         temp_yComputedVal <= wire_addsubOut;
-        // op_ExDoneFlag     <= 1'b1;
-
-         if(temp_nextMode)
-         begin
-            temp_nextMode  <= 1'b0; // set to adder next
-            op_DoneFlag    <= 1'b0;
-            op_yWriteVal   <= wire_addsubOut; // let it keep putting out data either way
-         end
-         else // temp_nextMode==0
-         begin
-            op_yWriteVal   <= wire_addsubOut;
-            temp_nextMode  <= 1'b1; // Reset to subtractor next
-            op_DoneFlag    <= 1'b1;
-         end // temp_nextMode
-
-      end//---if wire_DoneFlag_CmplxMod is high
+         op_ExDoneFlag     <= 1'b1; // it'll be done next cycle
+         op_DoneFlag       <= 1'b0;
+         temp_nextMode     <= 1'b0;
+         temp_yComputedVal <= temp_addsubout;
+      end//both !=0
+      //else if((|yInVal1) & (~(|yInVal2))) // yIn1 is non zero and yIn2 is 0. diag element
+      else if(diag_valid)
+      begin
+         op_ExDoneFlag     <= 1'b1; // it'll be done next cycle
+         op_DoneFlag       <= 1'b1;
+         temp_nextMode     <= 1'b1;// reset to subtract
+         //temp_yComputedVal <= 48'b0;
+      end // diag elem
       else
-      begin
-         op_yWriteVal   <= wire_addsubOut;
-         op_DoneFlag    <= 1'b0;
-        // op_ExDoneFlag  <= 1'b0;
-         // temp_nextMode should retain it's previous value
-      end// else wire_DoneFlag_CmplxMod
+      begin // no valid inputs
+         op_ExDoneFlag     <= 1'b0; // it'll be done next cycle
+         op_DoneFlag       <= 1'b0;
+      end // check for inputs
 
 
    end//-- else-reset
@@ -102,7 +102,8 @@ begin
 
    reg_addsub_in1     = yInVal1;
 
-   if(temp_nextMode)
+  // if((|yInVal1) & (|yInVal2)) // both are non zeros
+  if(both_valid)
    begin
       reg_addsub_in2  = yInVal2;
    end
@@ -114,16 +115,16 @@ begin
 
 end// always@(*)
 
-assign op_ExDoneFlag = wire_DoneFlag_CmplxMod;
+assign both_valid = ((|yInVal1) & (|yInVal2));
+assign diag_valid = ((|yInVal1) & (~(|yInVal2)));
+
 
 /* Modules */
 
-addsub_cplx u1 (.clock(clock),.reset(reset),.in1(reg_addsub_in1),.in2(reg_addsub_in2),.mode(temp_nextMode),
-                  .op(wire_addsubOut),.done_flag(wire_useless_now),.enable(executeEnableBit)
+addsub_cplx u1 (.clock(clock),.in1(reg_addsub_in1),.in2(reg_addsub_in2),.mode(temp_nextMode),
+                  .op(wire_addsubOut)
                );
 
-counterMod cnt_mod( .clock(clock), .reset(reset), .countEN(executeEnableBit),
-                        .op_done(wire_DoneFlag_CmplxMod));
 
 endmodule
 

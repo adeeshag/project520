@@ -36,7 +36,7 @@ wire        wire_DoneFlag_CmplxMod,both_valid,diag_valid;
 
 reg         op_ExDoneFlag;
 
-reg [47:0]  op_yWriteVal;
+wire [47:0]  op_yWriteVal;
 reg         op_DoneFlag;
 
    //Stored in Registers
@@ -53,7 +53,7 @@ always@(posedge clock)
 begin
    if(~(reset&executeEnableBit)) // Reset or Enable are 0
    begin
-      op_yWriteVal      <= 48'b0;
+      //op_yWriteVal      <= 48'b0;
       op_DoneFlag       <= 1'b0;
       op_ExDoneFlag     <= 1'b0;
       temp_nextMode     <= 1'b1; // always start with subtract first
@@ -65,9 +65,18 @@ begin
    else
    begin
       
-      temp_addsubout    <= wire_addsubOut;
 
-      op_yWriteVal      <= temp_addsubout; // just so that we can always see the output
+
+      //op_yWriteVal         <= wire_addsubOut; // just so that we can always see the output
+
+      if(op_ExDoneFlag&(~op_DoneFlag))
+      begin
+         temp_yComputedVal    <= wire_addsubOut;
+      end
+      else if(op_ExDoneFlag & op_DoneFlag)
+      begin
+         temp_yComputedVal    <= 48'b0;
+      end
 
       //if((|yInVal1) & (|yInVal2)) // both are non zeros
       if(both_valid)
@@ -75,7 +84,6 @@ begin
          op_ExDoneFlag     <= 1'b1; // it'll be done next cycle
          op_DoneFlag       <= 1'b0;
          temp_nextMode     <= 1'b0;
-         temp_yComputedVal <= temp_addsubout;
       end//both !=0
       //else if((|yInVal1) & (~(|yInVal2))) // yIn1 is non zero and yIn2 is 0. diag element
       else if(diag_valid)
@@ -115,9 +123,10 @@ begin
 
 end// always@(*)
 
-assign both_valid = ((|yInVal1) & (|yInVal2));
-assign diag_valid = ((|yInVal1) & (~(|yInVal2)));
+assign both_valid    = ((|yInVal1) & (|yInVal2));
+assign diag_valid    = ((|yInVal1) & (~(|yInVal2)));
 
+assign op_yWriteVal  = wire_addsubOut;
 
 /* Modules */
 

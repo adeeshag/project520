@@ -165,7 +165,7 @@ begin
    s2: begin
    //Set outputs
    //Calc y Diag1
-      if((&(ymem_data1[255:253]))&(ymem_data1[248:240]==chng_row)) // all bits are high
+      if((&(ymem_data1[255:253]))&(ymem_data1[247:240]==chng_row)) // all bits are high
       begin
          reg_op_yVal1 = ymem_data1[239:192];
          //Now check the rest for the diag element
@@ -212,7 +212,7 @@ begin
          //end if-else
          //
       end
-      else if((&(ymem_data1[191:189]))&(ymem_data1[184:176]==chng_row))
+      else if((&(ymem_data1[191:189]))&(ymem_data1[187:176]==chng_row))
       begin
          reg_op_yVal1 = ymem_data1[175:128];
 
@@ -255,7 +255,7 @@ begin
          //end if-else
          //
       end
-      else if((&(ymem_data1[127:125]))&(ymem_data1[120:112]==chng_row)) 
+      else if((&(ymem_data1[127:125]))&(ymem_data1[119:112]==chng_row)) 
       begin
          reg_op_yVal1    = ymem_data1[111:64];
 
@@ -293,7 +293,7 @@ begin
          //end if-else
          //
       end
-      else if((&(ymem_data1[63:61]))&(ymem_data1[56:48]==chng_row)) 
+      else if((&(ymem_data1[63:61]))&(ymem_data1[55:48]==chng_row)) 
       begin
          reg_op_yVal1    = ymem_data1[47:0];
 
@@ -695,19 +695,19 @@ begin
       reg_op_EX_EN    = 1'b1; // this can be either exModDone or data isn't ready
 
 
-      if((&(ymem_data1[255:253]))&(ymem_data1[248:240]==chng_col)) // all bits are high
+      if((&(ymem_data1[255:253]))&(ymem_data1[247:240]==chng_col)) // all bits are high
       begin
          reg_op_yVal1 = ymem_data1[239:192];
       end
-      else if((&(ymem_data1[191:189]))&(ymem_data1[184:176]==chng_col))
+      else if((&(ymem_data1[191:189]))&(ymem_data1[183:176]==chng_col))
       begin
          reg_op_yVal1 = ymem_data1[175:128];
       end
-      else if((&(ymem_data1[127:125]))&(ymem_data1[120:112]==chng_col)) 
+      else if((&(ymem_data1[127:125]))&(ymem_data1[119:112]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[111:64];
       end
-      else if((&(ymem_data1[63:61]))&(ymem_data1[56:48]==chng_col)) 
+      else if((&(ymem_data1[63:61]))&(ymem_data1[55:48]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[47:0];
       end

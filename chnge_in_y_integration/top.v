@@ -32,6 +32,14 @@ module top (clock, reset,
  wire          wire_execEnable,wire_dataOuNxtCycle, wire_execDoneFlag,wire_yAD_Enable;
  wire [47:0]   top_filtYval1,top_filtYval2; 
  wire [15:0]   top_opRowNum_from_filtY;
+ wire [10:0]   wire_yWriteAddr1,
+               wire_yWriteAddr2,
+               wire_yWriteAddr3,
+               wire_yWriteAddr4;
+wire [3:0]     wire_yWriteOneHot1,
+               wire_yWriteOneHot2,
+               wire_yWriteOneHot3,
+               wire_yWriteOneHot4;
    
 
 /***************** Modules Instantiation *******************/
@@ -49,8 +57,13 @@ updateY_control unit_controlY1 (.clock(clock), .reset(reset), .exModDone(wire_ex
      .chng_real(top_chgTxt_real),.chng_img(top_chgTxt_img),
      .ymem_data1(top_ySRAM_rowRead1), .ymem_data2(top_ySRAM_rowRead2), .filt_EN(1'b1),
      .yMemDataReadyNextCycle(wire_dataOuNxtCycle),
+     .yAddrIn1(top_yMatAddrOut1), .yAddrIn2(top_yMatAddrOut2),
+
      .op_y_row(top_opRowNum_from_filtY),  .op_EX_EN(wire_execEnable), .op_Done(top_filtYopDone),
-     .op_yVal1(top_filtYval1), .op_yVal2(top_filtYval2)
+     .op_yVal1(top_filtYval1), .op_yVal2(top_filtYval2),
+     .op_yAddrD1(wire_yWriteAddr1), .op_yAddrN1(wire_yWriteAddr2), .op_yAddrD2(wire_yWriteAddr3), .op_yAddrN2(wire_yWriteAddr4), 
+     .op_oneHotD1(wire_yWriteOneHot1),.op_oneHotN1(wire_yWriteOneHot2),.op_oneHotD2(wire_yWriteOneHot3),.op_oneHotN2(wire_yWriteOneHot4)
+
      );
 
 

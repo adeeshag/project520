@@ -32,7 +32,8 @@ module busWriteY(input clock, input reset,
       input [10:0] inDiagAddr, input [10:0] inNonDAddr,
       input [3:0] inDiagOH, input [3:0] inNonDiagOH,
       input [255:0] inYreadData1, input [255:0] inYreadData2,
-      input [47:0] yComputedVal, input [47:0] ychngData, // concatenated value from change.txt
+      input [47:0] inYComputedVal,
+      input [47:0] inYchngData, // concatenated value from change.txt
 
       output reg [255:0] op_writeData, output reg [10:0] op_writeAddress,
       output reg [10:0] op_readStoreAddr, output reg op_WEbit, 
@@ -44,16 +45,25 @@ reg [1:0]      current_state, next_state;
 reg [255:0]    tempStoreData;
 reg [10:0]     tempDiagAddr1,tempDiagAddr2,tempNonDiagAddr1,tempNonDiagAddr2;
 reg [3:0]      tempDiagOH1,tempDiagOH2,tempNonDiagOH1,tempNonDiagOH2;
-reg [47:0]     tempYnonDiagVal;
+reg [47:0]     tempComputedDiagVal1,tempComputedDiagVal2;
+reg            tempDataSecond; // like temp_bit. 0 if we're loading first set of data. 1 otherwise
 
 //Combinational logic
 reg [10:0]     reg_tempDiagAddr1,reg_tempDiagAddr2,reg_tempNonDiagAddr1,reg_tempNonDiagAddr2;
 reg [3:0]      reg_tempDiagOH1,reg_tempDiagOH2,reg_tempNonDiagOH1,reg_tempNonDiagOH2;
 
+
 reg            reg_op_WEBit,reg_op_writeDone;
 reg [255:0]    reg_op_writeData, reg_tempStoreData;
 reg [10:0]     reg_op_writeAddress,reg_op_readStoreAddr;
-reg [47:0]     reg_tempYnonDiagVal;
+reg [47:0]     reg_tempComputedDiagVal1,reg_tempComputedDiagVal2;
+reg            reg_tempDataSecond; // like temp_bit. 0 if we're loading first set of data. 1 otherwise
+
+//Wires
+reg [47:0]     reg_wireComputedDiagVal;
+reg [10:0]     reg_wireDiagAddr,reg_wireNonDiagAddr;
+reg [3:0]      reg_wireDiagOH,reg_wireNonDiagOH;
+
 
 /* parameters */
 parameter s0 = 0,
@@ -66,64 +76,346 @@ always@(posedge clock)
 begin
    if(~(reset))
    begin
-      op_writeData      <= 256'b0;
-      op_writeAddress   <= 11'b0;
-      op_WEbit          <= 1'b0;
-      op_readStoreAddr  <= 11'b0
-      op_writeDone      <= 1'b0;
+      op_writeData          <= 256'b0;
+      op_writeAddress       <= 11'b0;
+      op_WEbit              <= 1'b0;
+      op_readStoreAddr      <= 11'b0;
+      op_writeDone          <= 1'b0;
 
-      tempStoreData     <= 256'b0;
-      tempDiagAddr1     <= 11'b0;
-      tempDiagAddr2     <= 11'b0;
-      tempNonDiagAddr1  <= 11'b0;
-      tempNonDiagAddr2  <= 11'b0;
-      tempDiagOH1       <= 4'b0;
-      tempDiagOH2       <= 4'b0;
-      tempNonDiagOH1    <= 4'b0;
-      tempNonDiagOH2    <= 4'b0;
-      tempYnonDiagVal   <= 48'b0;
+      tempStoreData         <= 256'b0;
+      tempDiagAddr1         <= 11'b0;
+      tempDiagAddr2         <= 11'b0;
+      tempNonDiagAddr1      <= 11'b0;
+      tempNonDiagAddr2      <= 11'b0;
+      tempDiagOH1           <= 4'b0;
+      tempDiagOH2           <= 4'b0;
+      tempNonDiagOH1        <= 4'b0;
+      tempNonDiagOH2        <= 4'b0;
+      tempComputedDiagVal1  <= 48'b0;
+      tempComputedDiagVal2  <= 48'b0;
+      tempDataSecond        <= 1'b0;
 
-      current_state     <= s0;
+      current_state         <= s0;
 
    end//reset
    else
    begin
-      op_writeData      <= reg_op_writeData;
-      op_writeAddress   <= reg_op_writeAddress;
-      op_WEbit          <= reg_op_WEBit;
-      op_readStoreAddr  <= reg_op_readStoreAddr;
-      op_writeDone      <= reg_op_writeDone;
+      op_writeData          <= reg_op_writeData;
+      op_writeAddress       <= reg_op_writeAddress;
+      op_WEbit              <= reg_op_WEBit;
+      op_readStoreAddr      <= reg_op_readStoreAddr;
+      op_writeDone          <= reg_op_writeDone;
 
-      tempStoreData     <= reg_tempStoreData;
-      tempDiagAddr1     <= reg_tempDiagAddr1;
-      tempDiagAddr2     <= reg_tempDiagAddr2;
-      tempNonDiagAddr1  <= reg_tempNonDiagAddr1;
-      tempNonDiagAddr2  <= reg_tempNonDiagAddr2;
-      tempDiagOH1       <= reg_tempDiagOH1;
-      tempDiagOH2       <= reg_tempDiagOH2;
-      tempNonDiagOH1    <= reg_tempNonDiagOH1;
-      tempNonDiagOH2    <= reg_tempNonDiagOH2;
-      tempYnonDiagVal   <= reg_tempYnonDiagVal;
+      tempStoreData         <= reg_tempStoreData;
+      tempDiagAddr1         <= reg_tempDiagAddr1;
+      tempDiagAddr2         <= reg_tempDiagAddr2;
+      tempNonDiagAddr1      <= reg_tempNonDiagAddr1;
+      tempNonDiagAddr2      <= reg_tempNonDiagAddr2;
+      tempDiagOH1           <= reg_tempDiagOH1;
+      tempDiagOH2           <= reg_tempDiagOH2;
+      tempNonDiagOH1        <= reg_tempNonDiagOH1;
+      tempNonDiagOH2        <= reg_tempNonDiagOH2;
+      tempComputedDiagVal1  <= reg_tempComputedDiagVal1;
+      tempComputedDiagVal2  <= reg_tempComputedDiagVal2;
+      tempDataSecond        <= reg_tempDataSecond;
 
-      current_state     <= next_state;
+      current_state         <= next_state;
    end// not reset
 end// posedge clock
 
 always@(*)
 begin
-   case(current_state):
+   case(current_state)
    s0:
    begin
+      if(dpDoneFlag&(~(cpDoneFlag)))
+      begin
+         reg_tempDiagAddr1        = inDiagAddr;
+         reg_tempNonDiagAddr1     = inNonDAddr;
+         reg_tempDiagOH1          = inDiagOH;
+         reg_tempNonDiagOH1       = inNonDiagOH;
+         reg_tempComputedDiagVal1 = inYComputedVal;
+
+         reg_tempDiagAddr1        = 11'h7ff;
+         reg_tempNonDiagAddr1     = 11'h7ff;
+         reg_tempDiagOH1          = 4'b0;
+         reg_tempNonDiagOH1       = 4'b0;
+         reg_tempComputedDiagVal2 = 48'b0;
+
+         reg_op_WEBit             = 1'b0;
+         reg_op_writeDone         = 1'b0;
+         reg_op_writeData         = 256'b0; 
+         reg_op_writeAddress      = 11'h7ff;
+         reg_op_readStoreAddr     = 11'h7ff;
+
+         reg_tempStoreData        = 256'b0;
+         reg_tempDataSecond       = 1'b0;
+
+         next_state               = s0;
+
+      end// dpDoneFlag=1, cpDoneFlag=0
+      else if(dpDoneFlag&cpDoneFlag)
+      begin
+         reg_tempDiagAddr2        = inDiagAddr;
+         reg_tempNonDiagAddr2     = inNonDAddr;
+         reg_tempDiagOH2          = inDiagOH;
+         reg_tempNonDiagOH2       = inNonDiagOH;
+         reg_tempComputedDiagVal2 = inYComputedVal;
+
+         reg_tempDiagAddr1        = tempDiagAddr1;
+         reg_tempNonDiagAddr1     = tempNonDiagAddr1;
+         reg_tempDiagOH1          = tempDiagOH1;
+         reg_tempNonDiagOH1       = tempNonDiagOH1;
+         reg_tempComputedDiagVal1 = tempComputedDiagVal1;
+
+         reg_op_WEBit             = 1'b0;
+         reg_op_writeDone         = 1'b0;
+         reg_op_writeData         = 256'b0; 
+         reg_op_writeAddress      = 11'h7ff;
+         reg_op_readStoreAddr     = 11'h7ff;
+
+         reg_tempStoreData        = 256'b0;
+         reg_tempDataSecond       = 1'b0;
+
+         next_state               = s1;
+      end// dpDoneFlag=1, cpDoneFlag=1
+      else
+      begin
+
+         reg_tempDiagAddr1        = tempDiagAddr1;
+         reg_tempNonDiagAddr1     = tempNonDiagAddr1;
+         reg_tempDiagOH1          = tempDiagOH1;
+         reg_tempNonDiagOH1       = tempNonDiagOH1;
+         reg_tempComputedDiagVal1 = tempComputedDiagVal1;
+
+         reg_tempDiagAddr2        = tempDiagAddr2;
+         reg_tempNonDiagAddr2     = tempNonDiagAddr2;
+         reg_tempDiagOH2          = tempDiagOH2;
+         reg_tempNonDiagOH2       = tempNonDiagOH2;
+         reg_tempComputedDiagVal2 = tempComputedDiagVal2;
+
+         reg_op_WEBit             = 1'b0;
+         reg_op_writeDone         = 1'b0;
+         reg_op_writeData         = 256'b0; 
+         reg_op_writeAddress      = 11'h7ff;
+         reg_op_readStoreAddr     = 11'h7ff;
+
+         reg_tempStoreData        = 256'b0;
+         reg_tempDataSecond       = 1'b0;
+
+         next_state               = s0;
+      end// end-else
    end//s0
    s1:
-   begin
+   begin // which row(s) to fetch
+      reg_wireComputedDiagVal = (tempDataSecond?tempComputedDiagVal2:tempComputedDiagVal1);// mux
+      reg_wireDiagAddr        = (tempDataSecond?tempNonDiagAddr2:tempDiagAddr1);
+      reg_wireNonDiagAddr     = (tempDataSecond?tempNonDiagAddr2:tempNonDiagAddr1);
+      reg_wireDiagOH          = (tempDataSecond?tempDiagOH2:tempDiagOH1);
+      reg_wireNonDiagOH       = (tempDataSecond?tempNonDiagOH2:tempNonDiagOH1);
+
+
+      reg_tempDiagAddr1        = tempDiagAddr1;
+      reg_tempNonDiagAddr1     = tempNonDiagAddr1;
+      reg_tempDiagOH1          = tempDiagOH1;
+      reg_tempNonDiagOH1       = tempNonDiagOH1;
+      reg_tempComputedDiagVal1 = tempComputedDiagVal1;
+
+      reg_tempDiagAddr2        = tempDiagAddr2;
+      reg_tempNonDiagAddr2     = tempNonDiagAddr2;
+      reg_tempDiagOH2          = tempDiagOH2;
+      reg_tempNonDiagOH2       = tempNonDiagOH2;
+      reg_tempComputedDiagVal2 = tempComputedDiagVal2;
+
+      reg_op_WEBit             = 1'b0;
+      reg_op_writeDone         = 1'b0;
+      reg_op_writeData         = 256'b0; 
+
+      reg_tempStoreData        = 256'b0;
+      reg_tempDataSecond       = tempDataSecond; // retain value
+
+      next_state               = s1;
+
+      
+      if(reg_wireNonDiagAddr == reg_wireDiagAddr)
+      begin // both Diag and NonDiag are in the same row
+         reg_op_writeAddress      = reg_wireDiagAddr; // or Nondiag. both are the same
+         reg_op_readStoreAddr     = 11'h7ff; // second row is not needed
+         
+      end // both equal
+      else
+      begin// both not equal
+         reg_op_writeAddress      = reg_wireDiagAddr; // 
+         reg_op_readStoreAddr     = reg_wireNonDiagAddr;// fetch both rows
+      end //end- both not equal
+
+
    end//s1
    s2:
    begin
+      reg_wireComputedDiagVal = (tempDataSecond?tempComputedDiagVal2:tempComputedDiagVal1);// mux
+      reg_wireDiagAddr        = (tempDataSecond?tempNonDiagAddr2:tempDiagAddr1);
+      reg_wireNonDiagAddr     = (tempDataSecond?tempNonDiagAddr2:tempNonDiagAddr1);
+      reg_wireDiagOH          = (tempDataSecond?tempDiagOH2:tempDiagOH1);
+      reg_wireNonDiagOH       = (tempDataSecond?tempNonDiagOH2:tempNonDiagOH1);
+      
+
+      reg_tempDiagAddr1        = tempDiagAddr1;
+      reg_tempNonDiagAddr1     = tempNonDiagAddr1;
+      reg_tempDiagOH1          = tempDiagOH1;
+      reg_tempNonDiagOH1       = tempNonDiagOH1;
+      reg_tempComputedDiagVal1 = tempComputedDiagVal1;
+
+      reg_tempDiagAddr2        = tempDiagAddr2;
+      reg_tempNonDiagAddr2     = tempNonDiagAddr2;
+      reg_tempDiagOH2          = tempDiagOH2;
+      reg_tempNonDiagOH2       = tempNonDiagOH2;
+      reg_tempComputedDiagVal2 = tempComputedDiagVal2;
+
+      reg_op_WEBit             = 1'b1; 
+
+
+      if(reg_wireNonDiagAddr == reg_wireDiagAddr)
+      begin // both Diag and NonDiag are in the same row
+         
+         case(reg_wireDiagOH|reg_wireNonDiagOH) // since both are on the same line
+         4'b0011: // store in last two places
+         begin
+            reg_op_writeData  = {inYreadData1[255:112],reg_wireComputedDiagVal,inYreadData1[63:48],inYchngData};
+         end// 
+         4'b0101: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:176],reg_wireComputedDiagVal,inYreadData1[127:48],inYchngData};
+         end// 
+         4'b0110: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:176],reg_wireComputedDiagVal,inYreadData1[127:112],inYchngData,inYreadData1[63:0]};
+         end// 
+         4'b1010: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:240],reg_wireComputedDiagVal,inYreadData1[191:112],inYchngData,inYreadData1[63:0]};
+         end// 
+         4'b1100: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:240],reg_wireComputedDiagVal,inYreadData1[191:176],inYchngData,inYreadData1[127:0]};
+         end// 
+         4'b1001: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:240],reg_wireComputedDiagVal,inYreadData1[191:48],inYchngData};
+         end// 
+         default:// should never come here. make this 0 later
+         begin
+            reg_op_writeData  = 256'b0;
+         end
+         endcase
+
+         reg_tempStoreData        = 256'b0;
+         reg_op_readStoreAddr     = 11'h7ff; // second row is not needed
+         reg_op_writeAddress      = reg_wireDiagAddr; // or Nondiag. both are the same
+
+         reg_tempDataSecond       = (tempDataSecond?1'b0:tempDataSecond);
+         
+         next_state               = (tempDataSecond?s0:s1); 
+
+         reg_op_writeDone         = (tempDataSecond?1'b1:1'b0); 
+         
+      end // both equal
+      else
+      begin// both not equal
+         
+         //Diag
+         case(reg_wireDiagOH)
+         4'b0001: // store in last place
+         begin
+            reg_op_writeData  = {inYreadData1[255:48],reg_wireComputedDiagVal};
+         end// 
+         4'b0010: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:112],reg_wireComputedDiagVal,inYreadData1[63:0]};
+         end// 
+         4'b0100: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:176],reg_wireComputedDiagVal,inYreadData1[127:0]};
+         end// 
+         4'b1000: 
+         begin
+            reg_op_writeData  = {inYreadData1[255:240],reg_wireComputedDiagVal,inYreadData1[191:0]};
+         end// 
+         default:// should never come here. make this 0 later
+         begin
+            reg_op_writeData  = 256'b0;
+         end
+         endcase
+         
+         //NonDiag
+         case(reg_wireNonDiagOH)
+         4'b0001: // store in last place
+         begin
+            reg_tempStoreData  = {inYreadData2[255:48],inYchngData};
+         end// 
+         4'b0010: 
+         begin
+            reg_tempStoreData  = {inYreadData2[255:112],inYchngData,inYreadData2[63:0]};
+         end// 
+         4'b0100: 
+         begin
+            reg_tempStoreData  = {inYreadData2[255:176],inYchngData,inYreadData2[127:0]};
+         end// 
+         4'b1000: 
+         begin
+            reg_tempStoreData  = {inYreadData2[255:240],inYchngData,inYreadData2[191:0]};
+         end// 
+         default:// should never come here. make this 0 later
+         begin
+            reg_tempStoreData  = 256'b0;
+         end
+         endcase
+
+         reg_op_readStoreAddr     = reg_wireNonDiagAddr;// fetch both rows
+         reg_op_writeAddress      = reg_wireDiagAddr; // or Nondiag. both are the same
+
+         next_state               = s3; // need to send next row of data
+
+         reg_tempDataSecond       = tempDataSecond;
+
+         reg_op_writeDone         = 1'b0;
+
+      end //end- both not equal
+
+
    end//s2
    s3:
    begin
+      reg_wireComputedDiagVal = (tempDataSecond?tempComputedDiagVal2:tempComputedDiagVal2);// mux
+      reg_wireDiagAddr        = (tempDataSecond?tempNonDiagAddr2:tempDiagAddr1);
+      reg_wireNonDiagAddr     = (tempDataSecond?tempNonDiagAddr2:tempNonDiagAddr1);
+      reg_wireDiagOH          = (tempDataSecond?tempDiagOH2:tempDiagOH1);
+      reg_wireNonDiagOH       = (tempDataSecond?tempNonDiagOH2:tempNonDiagOH1);
+
+      reg_tempDiagAddr1        = tempDiagAddr1;
+      reg_tempNonDiagAddr1     = tempNonDiagAddr1;
+      reg_tempDiagOH1          = tempDiagOH1;
+      reg_tempNonDiagOH1       = tempNonDiagOH1;
+      reg_tempComputedDiagVal1 = tempComputedDiagVal1;
+
+      reg_tempDiagAddr2        = tempDiagAddr2;
+      reg_tempNonDiagAddr2     = tempNonDiagAddr2;
+      reg_tempDiagOH2          = tempDiagOH2;
+      reg_tempNonDiagOH2       = tempNonDiagOH2;
+      reg_tempComputedDiagVal2 = tempComputedDiagVal2;
+
+      reg_op_WEBit             = 1'b1; 
+
+      reg_op_writeAddress      = reg_wireNonDiagAddr;
+      reg_op_writeData         = tempStoreData;
+
+      reg_tempDataSecond       = (tempDataSecond?1'b0:1'b1); 
+      
+      next_state               = (tempDataSecond?s0:s1); 
+
+      reg_op_writeDone         = (tempDataSecond?1'b1:1'b0); 
    end//s3
+   endcase
 
 end//awlays@(*)
 

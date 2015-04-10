@@ -28,8 +28,8 @@ module updateY_control(clock, reset, exModDone,
      ymem_data1, ymem_data2, filt_EN, yMemDataReadyNextCycle,
      yAddrIn1, yAddrIn2,
      op_y_row, op_yVal1, op_yVal2, op_EX_EN, op_Done, op_DataEN,
-     op_yAddrD1,op_yAddrN1,op_yAddrD2,op_yAddrN2,
-     op_oneHotD1,op_oneHotN1, op_oneHotD2, op_oneHotN2
+     op_yAddrDiag,op_yAddrNonDiag,
+     op_oneHotDiag,op_oneHotNonDiag
      );
 
 /* Inputs and Outputs */
@@ -42,8 +42,8 @@ input [10:0]  yAddrIn1,yAddrIn2;
 output [47:0] op_yVal1,op_yVal2;
 output [15:0] op_y_row;
 output op_EX_EN,op_Done,op_DataEN;
-output [10:0] op_yAddrD1,op_yAddrN1,op_yAddrD2,op_yAddrN2; // to store the 4 addresses for write
-output [3:0]  op_oneHotD1,op_oneHotN1, op_oneHotD2, op_oneHotN2;
+output [10:0] op_yAddrDiag,op_yAddrNonDiag;
+output [3:0]  op_oneHotDiag,op_oneHotNonDiag;
 
 /* Parameters */
 
@@ -63,15 +63,15 @@ reg [47:0] op_yVal1,op_yVal2;
 reg [47:0] temp_yVal;
 reg [15:0] op_y_row;
 reg op_EX_EN,op_Done,op_DataEN;
-reg [10:0] op_yAddrD1,op_yAddrN1,op_yAddrD2,op_yAddrN2; // to store the 4 addresses for write
-reg [3:0]  op_oneHotD1,op_oneHotN1, op_oneHotD2, op_oneHotN2;
+reg [10:0] op_yAddrDiag,op_yAddrNonDiag;// store addresses for write
+reg [3:0]  op_oneHotDiag,op_oneHotNonDiag;
 
 reg [47:0] reg_op_yVal1, reg_op_yVal2;
 reg [47:0] reg_temp_yVal;
 reg [15:0] reg_op_y_row;
 reg reg_op_EX_EN, reg_op_Done,reg_op_dataEN;
-reg [10:0] reg_op_yAddrD1,reg_op_yAddrN1,reg_op_yAddrD2,reg_op_yAddrN2; // to store the 4 addresses for write
-reg [3:0]  reg_op_oneHotD1,reg_op_oneHotN1, reg_op_oneHotD2, reg_op_oneHotN2;
+reg [10:0] reg_op_yAddrDiag,reg_op_yAddrNonDiag;
+reg [3:0]  reg_op_oneHotDiag,reg_op_oneHotNonDiag;
 
 /* logic for module */
 always@(posedge clock)
@@ -87,14 +87,10 @@ begin
       op_Done        <= 1'b0;
       op_y_row       <= 16'hffff;
       op_DataEN      <= 1'b0;
-      op_yAddrD1     <= 11'h7ff;
-      op_yAddrN1     <= 11'h7ff;
-      op_yAddrD2     <= 11'h7ff;
-      op_yAddrN2     <= 11'h7ff;
-      op_oneHotD1    <= 4'b0;
-      op_oneHotD2    <= 4'b0;
-      op_oneHotN1    <= 4'b0;
-      op_oneHotN2    <= 4'b0;
+      op_yAddrDiag     <= 11'h7ff;
+      op_yAddrNonDiag     <= 11'h7ff;
+      op_oneHotDiag    <= 4'b0;
+      op_oneHotNonDiag    <= 4'b0;
 
       temp_yVal      <= 48'b0;
 
@@ -110,14 +106,10 @@ begin
       op_Done        <= reg_op_Done;
       op_y_row       <= reg_op_y_row;
       op_DataEN      <= reg_op_dataEN;
-      op_yAddrD1     <= reg_op_yAddrD1;
-      op_yAddrN1     <= reg_op_yAddrN1;
-      op_yAddrD2     <= reg_op_yAddrD2;
-      op_yAddrN2     <= reg_op_yAddrN2;
-      op_oneHotD1    <= reg_op_oneHotD1;
-      op_oneHotD2    <= reg_op_oneHotD2;
-      op_oneHotN1    <= reg_op_oneHotN1;
-      op_oneHotN2    <= reg_op_oneHotN2;
+      op_yAddrDiag     <= reg_op_yAddrDiag;
+      op_yAddrNonDiag     <= reg_op_yAddrNonDiag;
+      op_oneHotDiag    <= reg_op_oneHotDiag;
+      op_oneHotNonDiag    <= reg_op_oneHotNonDiag;
 
       temp_yVal      <= reg_temp_yVal;
 
@@ -136,14 +128,10 @@ begin
       reg_op_Done          = 1'b0;
       reg_op_y_row         = 16'hffff;
       reg_op_dataEN        = 1'b0;
-      reg_op_yAddrD1       = op_yAddrD1;
-      reg_op_yAddrN1       = op_yAddrN1;
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotN1      = op_oneHotN1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
+      reg_op_yAddrDiag       = op_yAddrDiag;
+      reg_op_yAddrNonDiag       = op_yAddrNonDiag;
+      reg_op_oneHotDiag      = op_oneHotDiag;
+      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
       reg_temp_yVal        = 48'b0;
 
       // Set next state
@@ -168,14 +156,10 @@ begin
       reg_temp_yVal        = 48'b0;
       reg_op_dataEN        = 1'b1; // start fetching data
       reg_op_EX_EN         = 1'b0;
-      reg_op_yAddrD1       = op_yAddrD1; // Diagonal element
-      reg_op_yAddrN1       = op_yAddrN1; // Non Diagonal
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotN1      = op_oneHotN1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
+      reg_op_yAddrDiag       = op_yAddrDiag; // Diagonal element
+      reg_op_yAddrNonDiag       = op_yAddrNonDiag; // Non Diagonal
+      reg_op_oneHotDiag      = op_oneHotDiag;
+      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
 
       // Set next state
       if(yMemDataReadyNextCycle) // get this from the yAddrDecoder.v 
@@ -193,17 +177,13 @@ begin
    s2: begin
    //Set outputs
    //Calc y Diag1
-      reg_op_yAddrD1       = yAddrIn1;
+      reg_op_yAddrDiag       = yAddrIn1;
 
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
 
       if((&(ymem_data1[255:253]))&(ymem_data1[247:240]==chng_row)) // all bits are high
       begin
          reg_op_yVal1      = ymem_data1[239:192];
-         reg_op_oneHotD1   = 4'b1000;
+         reg_op_oneHotDiag   = 4'b1000;
 
          //Now check the rest for the diag element
          if((ymem_data1[191:176])==(chng_col)) 
@@ -211,64 +191,64 @@ begin
             reg_temp_yVal     = ymem_data1[175:128];
             reg_op_dataEN     = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[127:112])==(chng_col)) 
          begin
             reg_temp_yVal     = ymem_data1[111:64];
             reg_op_dataEN     = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[63:48])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_col)) 
          begin
             reg_op_dataEN   = 1'b0;
             reg_temp_yVal = ymem_data2[239:192];
 
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal   = 48'b0;
             reg_op_dataEN   = 1'b1;
 
-            reg_op_oneHotN1   = 4'b0000;
-            reg_op_yAddrN1    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -276,7 +256,7 @@ begin
       else if((&(ymem_data1[191:189]))&(ymem_data1[183:176]==chng_row))
       begin
          reg_op_yVal1   = ymem_data1[175:128];
-         reg_op_oneHotD1   = 4'b0100;
+         reg_op_oneHotDiag   = 4'b0100;
 
          //Now check the rest for the diag element
          if((ymem_data1[127:112])==(chng_col)) 
@@ -284,56 +264,56 @@ begin
             reg_temp_yVal     = ymem_data1[111:64];
             reg_op_dataEN     = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[63:48])==(chng_col)) 
          begin
             reg_temp_yVal   = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal = 48'b0;
             reg_op_dataEN   = 1'b1;
 
-            reg_op_oneHotN1   = 4'b0000;
-            reg_op_yAddrN1    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -341,7 +321,7 @@ begin
       else if((&(ymem_data1[127:125]))&(ymem_data1[119:112]==chng_row)) 
       begin
          reg_op_yVal1    = ymem_data1[111:64];
-         reg_op_oneHotD1   = 4'b0010;
+         reg_op_oneHotDiag   = 4'b0010;
 
          //Now check the rest for the diag element
          if((ymem_data1[63:48])==(chng_col)) 
@@ -349,43 +329,43 @@ begin
             reg_temp_yVal   = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
 
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal   = 48'b0;
             reg_op_dataEN   = 1'b1;
-            reg_op_oneHotN1   = 4'b0000;
-            reg_op_yAddrN1    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -393,42 +373,42 @@ begin
       else if((&(ymem_data1[63:61]))&(ymem_data1[55:48]==chng_row)) 
       begin
          reg_op_yVal1    = ymem_data1[47:0];
-         reg_op_oneHotD1   = 4'b0001;
+         reg_op_oneHotDiag   = 4'b0001;
 
          if((ymem_data2[255:240])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
             reg_temp_yVal     = ymem_data2[47:0];
             reg_op_dataEN     = 1'b0;
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal     = 48'b0;
             reg_op_dataEN     = 1'b1;
-            reg_op_oneHotN1   = 4'b0000;
-            reg_op_yAddrN1    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
       end
       else
@@ -438,8 +418,8 @@ begin
       reg_op_y_row       = 16'hffff; // invalid
       reg_op_dataEN      = 1'b0;
       reg_op_EX_EN       = 1'b0;
-      reg_op_oneHotN1    = 4'bz;
-      reg_op_yAddrN1     = 11'h7ff;
+      reg_op_oneHotNonDiag    = 4'bz;
+      reg_op_yAddrNonDiag     = 11'h7ff;
       end// if-else main nest
       
       // Set next state
@@ -454,17 +434,13 @@ begin
    s3: begin
    // A Wait for Yij State
 
-      reg_op_yAddrD1       = op_yAddrD1; // Diagonal element
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
+      reg_op_yAddrDiag       = op_yAddrDiag; // Diagonal element
+      reg_op_oneHotDiag      = op_oneHotDiag;
 
       if(|temp_yVal)
       begin
-         reg_op_yAddrN1      = op_yAddrN1; // already found. retain value
-         reg_op_oneHotN1     = op_oneHotN1;
+         reg_op_yAddrNonDiag      = op_yAddrNonDiag; // already found. retain value
+         reg_op_oneHotNonDiag     = op_oneHotNonDiag;
 
          if(exModDone)
          begin
@@ -498,8 +474,8 @@ begin
          //Now check for the diag element
          if((ymem_data1[255:240])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if(exModDone)
             begin
@@ -531,8 +507,8 @@ begin
          end
          else if((ymem_data1[191:176])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn1;
             if(exModDone)
             begin
                reg_op_yVal1          = ymem_data1[175:128];
@@ -563,8 +539,8 @@ begin
          end
          else if((ymem_data1[127:112])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if (exModDone)
             begin
@@ -596,8 +572,8 @@ begin
          end
          else if((ymem_data1[63:48])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if(exModDone)
             begin
@@ -629,8 +605,8 @@ begin
          end
          else if((ymem_data2[255:240])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b1000;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -662,8 +638,8 @@ begin
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0100;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -695,8 +671,8 @@ begin
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0010;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if (exModDone)
             begin
@@ -728,8 +704,8 @@ begin
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
-            reg_op_oneHotN1   = 4'b0001;
-            reg_op_yAddrN1    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -773,8 +749,8 @@ begin
                                              // or not it has to add or
                                              // subtract. if we reset, it'll
                                              // reset to subtract.
-            reg_op_oneHotN1   = 4'b0000;
-            reg_op_yAddrN1    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
 
             next_state               = s3;
          //
@@ -785,14 +761,10 @@ begin
 /***********************     S4       ********************/
    s4: begin
    //s4
-      reg_op_yAddrD1       = op_yAddrD1;
-      reg_op_yAddrN1       = op_yAddrN1;
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotN1      = op_oneHotN1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
+      reg_op_yAddrDiag       = op_yAddrDiag;
+      reg_op_yAddrNonDiag       = op_yAddrNonDiag;
+      reg_op_oneHotDiag      = op_oneHotDiag;
+      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
 
       // Set next state
       if(exModDone)
@@ -840,75 +812,71 @@ begin
 /***********************     S5       ********************/
    s5: begin
    //s5
-      reg_op_yAddrD2       = yAddrIn1;
+      reg_op_yAddrDiag       = yAddrIn1;
 
-      reg_op_yAddrD1       = op_yAddrD1;
-      reg_op_yAddrN1       = op_yAddrN1;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotN1      = op_oneHotN1;
 
       if((&(ymem_data1[255:253]))&(ymem_data1[247:240]==chng_col)) // all bits are high
       begin
          reg_op_yVal1 = ymem_data1[239:192];
-         reg_op_oneHotD2   = 4'b1000;
+         reg_op_oneHotDiag   = 4'b1000;
 
          //Now check the rest for the diag element
          if((ymem_data1[191:176])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data1[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[127:112])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data1[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[63:48])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_row)) 
          begin
             reg_op_dataEN   = 1'b0;
             reg_temp_yVal = ymem_data2[239:192];
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal   = 48'b0;
             reg_op_dataEN   = 1'b1;
 
-            reg_op_oneHotN2   = 4'b0000;
-            reg_op_yAddrN2    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -916,57 +884,57 @@ begin
       else if((&(ymem_data1[191:189]))&(ymem_data1[183:176]==chng_col))
       begin
          reg_op_yVal1 = ymem_data1[175:128];
-         reg_op_oneHotD2   = 4'b0100;
+         reg_op_oneHotDiag   = 4'b0100;
 
          //Now check the rest for the diag element
          if((ymem_data1[127:112])==(chng_row)) 
          begin
             reg_temp_yVal   = ymem_data1[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data1[63:48])==(chng_row)) 
          begin
             reg_temp_yVal   = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal = 48'b0;
             reg_op_dataEN   = 1'b1;
-            reg_op_oneHotN2   = 4'b0000;
-            reg_op_yAddrN2    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -974,50 +942,50 @@ begin
       else if((&(ymem_data1[127:125]))&(ymem_data1[119:112]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[111:64];
-         reg_op_oneHotD2   = 4'b0010;
+         reg_op_oneHotDiag   = 4'b0010;
 
          //Now check the rest for the diag element
          if((ymem_data1[63:48])==(chng_row)) 
          begin
             reg_temp_yVal   = ymem_data1[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
          end
          else if((ymem_data2[255:240])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal   = 48'b0;
             reg_op_dataEN   = 1'b1;
-            reg_op_oneHotN2   = 4'b0000;
-            reg_op_yAddrN2    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
          //end if-else
          //
@@ -1025,42 +993,42 @@ begin
       else if((&(ymem_data1[63:61]))&(ymem_data1[55:48]==chng_col)) 
       begin
          reg_op_yVal1    = ymem_data1[47:0];
-         reg_op_oneHotD2   = 4'b0001;
+         reg_op_oneHotDiag   = 4'b0001;
 
          if((ymem_data2[255:240])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[239:192];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[191:176])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[175:128];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[127:112])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[111:64];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else if((ymem_data2[63:48])==(chng_row)) 
          begin
             reg_temp_yVal = ymem_data2[47:0];
             reg_op_dataEN   = 1'b0;
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
          end
          else
          begin
             reg_temp_yVal   = 48'b0;
             reg_op_dataEN   = 1'b1;
-            reg_op_oneHotN2   = 4'b0000;
-            reg_op_yAddrN2    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
          end
       end
       else
@@ -1070,8 +1038,8 @@ begin
       reg_op_y_row       = 16'hffff; // invalid
       reg_op_dataEN      = 1'b0;
       reg_op_EX_EN       = 1'b0;
-      reg_op_oneHotN2    = 4'bz;
-      reg_op_yAddrN2     = 11'h7ff;
+      reg_op_oneHotNonDiag    = 4'bz;
+      reg_op_yAddrNonDiag     = 11'h7ff;
       end// if-else main nest
       
       // Set next state
@@ -1087,17 +1055,13 @@ begin
    s6: begin
    //s6
    //
-      reg_op_yAddrD1       = op_yAddrD1; // Diagonal element
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN1       = op_yAddrN1;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN1      = op_oneHotN1;
+      reg_op_yAddrDiag       = op_yAddrDiag;
+      reg_op_oneHotDiag      = op_oneHotDiag;
 
       if(|temp_yVal)
       begin
-         reg_op_yAddrN2      = op_yAddrN2; // already found. retain value
-         reg_op_oneHotN2     = op_oneHotN2;
+         reg_op_yAddrNonDiag      = op_yAddrNonDiag; // already found. retain value
+         reg_op_oneHotNonDiag     = op_oneHotNonDiag;
 
          if(exModDone)
          begin
@@ -1131,8 +1095,8 @@ begin
          //Now check for the diag element
          if((ymem_data1[255:240])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if(exModDone)
             begin
@@ -1164,8 +1128,8 @@ begin
          end
          else if((ymem_data1[191:176])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if(exModDone)
             begin
@@ -1197,8 +1161,8 @@ begin
          end
          else if((ymem_data1[127:112])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if (exModDone)
             begin
@@ -1230,8 +1194,8 @@ begin
          end
          else if((ymem_data1[63:48])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn1;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn1;
 
             if(exModDone)
             begin
@@ -1263,8 +1227,8 @@ begin
          end
          else if((ymem_data2[255:240])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b1000;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b1000;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -1296,8 +1260,8 @@ begin
          end
          else if((ymem_data2[191:176])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0100;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0100;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -1329,8 +1293,8 @@ begin
          end
          else if((ymem_data2[127:112])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0010;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0010;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if (exModDone)
             begin
@@ -1362,8 +1326,8 @@ begin
          end
          else if((ymem_data2[63:48])==(chng_col)) 
          begin
-            reg_op_oneHotN2   = 4'b0001;
-            reg_op_yAddrN2    = yAddrIn2;
+            reg_op_oneHotNonDiag   = 4'b0001;
+            reg_op_yAddrNonDiag    = yAddrIn2;
 
             if(exModDone)
             begin
@@ -1407,8 +1371,8 @@ begin
                                              // or not it has to add or
                                              // subtract. if we reset, it'll
                                              // reset to subtract.
-            reg_op_oneHotN2   = 4'b0000;
-            reg_op_yAddrN2    = 11'h7ff;
+            reg_op_oneHotNonDiag   = 4'b0000;
+            reg_op_yAddrNonDiag    = 11'h7ff;
 
             next_state               = s6;
          //
@@ -1450,14 +1414,10 @@ begin
       reg_op_y_row    = 16'hffff;
       reg_temp_yVal   = temp_yVal;
       reg_op_dataEN   = 1'b0; // fetching data is done 
-      reg_op_yAddrD1       = op_yAddrD1;
-      reg_op_yAddrN1       = op_yAddrN1;
-      reg_op_yAddrD2       = op_yAddrD2;
-      reg_op_yAddrN2       = op_yAddrN2;
-      reg_op_oneHotD1      = op_oneHotD1;
-      reg_op_oneHotN1      = op_oneHotN1;
-      reg_op_oneHotD2      = op_oneHotD2;
-      reg_op_oneHotN2      = op_oneHotN2;
+      reg_op_yAddrDiag       = op_yAddrDiag;
+      reg_op_yAddrNonDiag       = op_yAddrNonDiag;
+      reg_op_oneHotDiag      = op_oneHotDiag;
+      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
 
       if(exModDone)
       begin

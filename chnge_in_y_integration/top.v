@@ -61,8 +61,8 @@ updateY_control unit_controlY1 (.clock(clock), .reset(reset), .exModDone(wire_ex
 
      .op_y_row(top_opRowNum_from_filtY),  .op_EX_EN(wire_execEnable), .op_Done(top_filtYopDone),
      .op_yVal1(top_filtYval1), .op_yVal2(top_filtYval2),
-     .op_yAddrD1(wire_yWriteAddr1), .op_yAddrN1(wire_yWriteAddr2), .op_yAddrD2(wire_yWriteAddr3), .op_yAddrN2(wire_yWriteAddr4), 
-     .op_oneHotD1(wire_yWriteOneHot1),.op_oneHotN1(wire_yWriteOneHot2),.op_oneHotD2(wire_yWriteOneHot3),.op_oneHotN2(wire_yWriteOneHot4)
+     .op_yAddrDiag(wire_yWriteAddr1), .op_yAddrNonDiag(wire_yWriteAddr2), 
+     .op_oneHotDiag(wire_yWriteOneHot1),.op_oneHotNonDiag(wire_yWriteOneHot2)
 
      );
 

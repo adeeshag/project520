@@ -34,7 +34,6 @@ module busArbit(input reset,
       input in_writePathWE, input [10:0] in_writePathWriteAddr,
       input [255:0] in_writePathWriteData,
 
-      input [255:0] in_ReadData1, input [255:0] in_ReadData2,
 
       output reg [10:0]  op_yReadAddress1, output reg [10:0]  op_yReadAddress2,
       output reg op_yWriteEnable,          output reg [10:0] op_yWriteAddress,

@@ -11,8 +11,13 @@ module top(clock, reset,
    input [23:0]   top_chgTxt_real, top_chgTxt_img;
 
    output [47:0] top_opYval;
+// For fp_DW
 
-//For testing purposes
+   wire [47:0] top_op_fpIn1, top_op_fpIn2;
+   wire        top_op_fpMode;
+   
+   wire  [47:0]      top_in_fpOut;
+
 
 	
 /************************ Wires *******************/	
@@ -38,7 +43,12 @@ myDesign myDes_inst(.clock(clock), .reset(reset),
       .mydes_opYval(top_opYval),
       .mydes_ydataWrite(wire_yDataWrite),
       .mydes_op_yReadAddress1(wire_yAddrOut1),  .mydes_op_yReadAddress2(wire_yAddrOut2),
-      .mydes_op_yWriteAddress(wire_yAddrWrite), .mydes_op_yWriteEnable(wire_WEBit)         
+      .mydes_op_yWriteAddress(wire_yAddrWrite), .mydes_op_yWriteEnable(wire_WEBit),
+
+      //For fp_DW
+      .mydes_op_fpIn1(top_op_fpIn1), .mydes_op_fpIn2(top_op_fpIn2),
+      .mydes_op_fpMode(top_op_fpMode),
+      .mydes_in_fpOut(top_in_fpOut)
       );
 
 // Memories 
@@ -48,6 +58,12 @@ memory memory_inst(.Y_WE(wire_WEBit), .clock(clock),
       .Y_ReadAddress1(wire_yAddrOut1),  .Y_ReadAddress2(wire_yAddrOut2),
       .Y_ReadBus1(wire_ySRAM_rowRead1), .Y_ReadBus2(wire_ySRAM_rowRead2)
 	);
+
+// fp_designware
+fp_dw fp_dw_inst(.clock(clock) , .adder1_mode(top_op_fpMode), 
+      .in1_adder1(top_op_fpIn1) ,       .in2_adder1(top_op_fpIn2),
+      .opt_adder1(top_in_fpOut)
+      );
 
 
 endmodule

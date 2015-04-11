@@ -8,8 +8,13 @@ module updateYcomputation (clock, reset, computationEnable,
       uYc_dataPathDoneFlag, uYc_filtYopDone,
       uYc_opYval, 
       uYc_writeDiagAddr, uYc_writeNonDiagAddr,
-      uYc_writeDiagOneHot, uYc_writeNonDiagOneHot
+      uYc_writeDiagOneHot, uYc_writeNonDiagOneHot,
 
+      // For fp_DW
+
+      uYC_op_fpIn1, uYC_op_fpIn2,
+      uYC_op_fpMode,
+      uYC_in_fpOut
 
 	   );
 /********** Module Inputs and Outputs **************/
@@ -18,9 +23,9 @@ module updateYcomputation (clock, reset, computationEnable,
 	input	reset;
    input computationEnable;
 	
-   input [15:0]   uYc_chgTxt_row,uYc_chgTxt_col; //From change.txt
-   input [23:0]   uYc_chgTxt_real, uYc_chgTxt_img;
-   input [255:0]  uYc_ySRAM_rowRead1,uYc_ySRAM_rowRead2; //From Y SRAM
+   input [15:0]    uYc_chgTxt_row,uYc_chgTxt_col; //From change.txt
+   input [23:0]    uYc_chgTxt_real, uYc_chgTxt_img;
+   input [255:0]   uYc_ySRAM_rowRead1,uYc_ySRAM_rowRead2; //From Y SRAM
 	
 
 
@@ -31,6 +36,12 @@ module updateYcomputation (clock, reset, computationEnable,
                    uYc_writeNonDiagAddr;
    output [3:0]    uYc_writeDiagOneHot,
                    uYc_writeNonDiagOneHot;
+// For fp_DW
+
+   output wire [47:0] uYC_op_fpIn1, uYC_op_fpIn2;
+   output wire        uYC_op_fpMode;
+   
+   input  [47:0]      uYC_in_fpOut;
 
 
 
@@ -54,7 +65,13 @@ wire [10:0] wire_inAddr1, wire_inAddr2;
 updateY_datapath unit_dataPath1 (.clock(clock),.reset(reset), .executeEnableBit(wire_execEnable),
                      .yInVal1(uYc_filtYval1), .yInVal2(uYc_filtYval2), 
                      .op_yWriteVal(uYc_opYval), .op_DoneFlag(uYc_dataPathDoneFlag),
-                     .op_ExDoneFlag(wire_execDoneFlag), .op_CPDoneFlag(uYc_filtYopDone)
+                     .op_ExDoneFlag(wire_execDoneFlag), .op_CPDoneFlag(uYc_filtYopDone),
+
+                     //For fp_DW
+                      .op_fpIn1(uYC_op_fpIn1), .op_fpIn2(uYC_op_fpIn2),
+                      .op_fpMode(uYC_op_fpMode),
+                      .in_fpOut(uYC_in_fpOut)
+
                     );
 
 
@@ -69,6 +86,7 @@ updateY_control unit_controlY1 (.clock(clock), .reset(reset), .exModDone(wire_ex
      .op_yVal1(uYc_filtYval1), .op_yVal2(uYc_filtYval2),
      .op_yAddrDiag(uYc_writeDiagAddr), .op_yAddrNonDiag(uYc_writeNonDiagAddr), 
      .op_oneHotDiag(uYc_writeDiagOneHot),.op_oneHotNonDiag(uYc_writeNonDiagOneHot)
+     
 
      );
 

@@ -13,7 +13,11 @@ module myDesign(clock, reset,
       mydes_opYval,
       mydes_ydataWrite,
       mydes_op_yReadAddress1, mydes_op_yReadAddress2, mydes_op_yWriteAddress,
-      mydes_op_yWriteEnable         
+      mydes_op_yWriteEnable,
+
+      mydes_op_fpIn1, mydes_op_fpIn2,
+      mydes_op_fpMode,
+      mydes_in_fpOut
       );
 
 /********** Module Inputs and Outputs **************/
@@ -28,47 +32,51 @@ module myDesign(clock, reset,
    output [255:0]  mydes_ydataWrite;
    output [10:0]   mydes_op_yReadAddress1, mydes_op_yReadAddress2, mydes_op_yWriteAddress;
    output mydes_op_yWriteEnable;         
+// For fp_DW
 
-//For testing purposes
+   output wire [47:0] mydes_op_fpIn1, mydes_op_fpIn2;
+   output wire        mydes_op_fpMode;
+   
+   input  [47:0]      mydes_in_fpOut;
+
 
 	
 /************************ Wires *******************/	
 	
 
 
- wire [10:0]  wire_yAddrOut1;
- wire [10:0]  wire_yAddrOut2;
+   wire [10:0]  wire_yAddrOut1;
+   wire [10:0]  wire_yAddrOut2;
 
- wire [10:0]  wire_yAddrWrite;
- wire [255:0] wire_yDataWrite;
+   wire [10:0]  wire_yAddrWrite;
+   wire [255:0] wire_yDataWrite;
 
- //
- wire [10:0]   wire_writeDiagAddr,
-               wire_writeNonDiagAddr;
- wire [3:0]    wire_writeDiagOneHot,
+   wire [10:0]   wire_writeDiagAddr,
+                 wire_writeNonDiagAddr;
+   wire [3:0]    wire_writeDiagOneHot,
                wire_writeNonDiagOneHot;
 // For write logic
 
-wire bWY_cpDoneFlag, bWY_dpDoneFlag,bWY_inModuleEnable;
-wire [10:0]  bWY_inDiagAddr, bWY_inNonDAddr;
-wire [3:0]   bWY_inDiagOH, bWY_inNonDiagOH;
-wire [255:0] inYreadData1, inYreadData2;
-wire [47:0]  bWY_inYComputedVal;
-wire [47:0]  bWY_inYchngData;
-wire [255:0] bWY_op_writeData;     wire [10:0] bWY_op_writeAddress;
-wire [10:0]  bWY_op_readStoreAddr; wire bWY_op_WEbit; 
-wire bWY_op_writeDone;
+   wire bWY_cpDoneFlag, bWY_dpDoneFlag,bWY_inModuleEnable;
+   wire [10:0]  bWY_inDiagAddr, bWY_inNonDAddr;
+   wire [3:0]   bWY_inDiagOH, bWY_inNonDiagOH;
+   wire [255:0] inYreadData1, inYreadData2;
+   wire [47:0]  bWY_inYComputedVal;
+   wire [47:0]  bWY_inYchngData;
+   wire [255:0] bWY_op_writeData;     wire [10:0] bWY_op_writeAddress;
+   wire [10:0]  bWY_op_readStoreAddr; wire bWY_op_WEbit; 
+   wire bWY_op_writeDone;
 
 // For roundRobin
 
-wire wire_updateYmoduleEnable, wire_writeYvalEnable;
-wire wire_dataPathDoneFlag,wire_filtYopDone;
+   wire wire_updateYmoduleEnable, wire_writeYvalEnable;
+   wire wire_dataPathDoneFlag,wire_filtYopDone;
 
 //Testing	
 
  /*********Assign For testing ******/
- assign mydes_yMatOut1 = mydes_ySRAM_rowRead1;
- assign mydes_yMatOut2 = mydes_ySRAM_rowRead2;
+   assign mydes_yMatOut1 = mydes_ySRAM_rowRead1;
+   assign mydes_yMatOut2 = mydes_ySRAM_rowRead2;
 /***************** Modules Instan *******************/
 	updateYcomputation uYc_inst (	.clock(clock),  .reset(reset), .computationEnable(wire_updateYmoduleEnable),
 
@@ -79,7 +87,13 @@ wire wire_dataPathDoneFlag,wire_filtYopDone;
             .uYc_dataPathDoneFlag(mydes_dataPathDoneFlag), .uYc_filtYopDone(mydes_filtYopDone),
             .uYc_opYval(mydes_opYval),// might not need this output
             .uYc_writeDiagAddr(wire_writeDiagAddr),     .uYc_writeNonDiagAddr(wire_writeNonDiagAddr),
-            .uYc_writeDiagOneHot(wire_writeDiagOneHot), .uYc_writeNonDiagOneHot(wire_writeNonDiagOneHot)
+            .uYc_writeDiagOneHot(wire_writeDiagOneHot), .uYc_writeNonDiagOneHot(wire_writeNonDiagOneHot),
+
+      // For fp_DW
+
+            .uYC_op_fpIn1(mydes_op_fpIn1), .uYC_op_fpIn2(mydes_op_fpIn2),
+            .uYC_op_fpMode(mydes_op_fpMode),
+            .uYC_in_fpOut(mydes_in_fpOut)
 			);
 
 //-----------------

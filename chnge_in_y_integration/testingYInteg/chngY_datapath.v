@@ -21,7 +21,9 @@
 module updateY_datapath(clock,reset, executeEnableBit,
                      yInVal1, yInVal2, 
                      op_yWriteVal, op_DoneFlag, op_ExDoneFlag,
-                     op_CPDoneFlag
+                     op_CPDoneFlag,
+                     op_fpIn1, op_fpIn2, op_fpMode,
+                     in_fpOut
                     );
 /* Inputs and Outputs */
 
@@ -30,6 +32,13 @@ input [47:0]   yInVal1,yInVal2;
 
 output [47:0]  op_yWriteVal;
 output reg     op_DoneFlag,op_ExDoneFlag,op_CPDoneFlag;
+
+//For fp_DW
+
+output wire [47:0] op_fpIn1, op_fpIn2;
+output wire op_fpMode;
+
+input  [47:0] in_fpOut;
 
 
 /* Wires and Regs */
@@ -143,17 +152,27 @@ begin
 
 end// always@(*)
 
-assign both_valid    = ((|yInVal1) & (|yInVal2));
-assign diag_valid    = ((|yInVal1) & (~(|yInVal2)));
+assign both_valid       = ((|yInVal1) & (|yInVal2));
+assign diag_valid       = ((|yInVal1) & (~(|yInVal2)));
 
-assign op_yWriteVal  = wire_addsubOut;
+assign op_yWriteVal     = wire_addsubOut;
+//
+//
+//For fp_DW
+assign wire_addsubOut   = in_fpOut;
+assign op_fpIn1         = reg_addsub_in1;
+assign op_fpIn2         = reg_addsub_in2;
+assign op_fpMode        = temp_nextMode;
+
+
 
 /* Modules */
 
+/*
 addsub_cplx u1 (.clock(clock),.in1(reg_addsub_in1),.in2(reg_addsub_in2),.mode(temp_nextMode),
                   .op(wire_addsubOut)
                );
-
+*/
 
 endmodule
 

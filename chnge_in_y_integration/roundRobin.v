@@ -55,7 +55,7 @@ begin
       reg_op_writeYvalEnable     = op_writeYvalEnable;
    end//00
    2'b01: // this means that the write is actually done and we can start 
-   begin       // computing matrix data
+   begin  // computing matrix data
       reg_op_updateYmoduleEnable = 1'b0;
       reg_op_writeYvalEnable     = 1'b0;
    end

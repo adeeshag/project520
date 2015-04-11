@@ -13,7 +13,7 @@
  *         4. DPDoneFlag and CPDoneFlag
  *         5. Two 256 bit yReadData
  *         6. 48 bit computed Y Diag value
- *         7. clock,reset
+ *         7. clock,reset, module enable
  *
  * Outputs: 1. 256bit op_writeData
  *          2. 11bit op_writeAddress, op_readStoreAddr
@@ -27,7 +27,7 @@
  *
  * ***************************************************************/
 
-module busWriteY(input clock, input reset, 
+module busWriteY(input clock, input reset, input inModuleEnable,
       input cpDoneFlag, input dpDoneFlag,
       input [10:0] inDiagAddr, input [10:0] inNonDAddr,
       input [3:0] inDiagOH, input [3:0] inNonDiagOH,
@@ -74,7 +74,7 @@ parameter s0 = 0,
 /* modules */
 always@(posedge clock)
 begin
-   if(~(reset))
+   if(~(reset & inModuleEnable))
    begin
       op_writeData          <= 256'b0;
       op_writeAddress       <= 11'b0;
@@ -83,16 +83,6 @@ begin
       op_writeDone          <= 1'b0;
 
       tempStoreData         <= 256'b0;
-      tempDiagAddr1         <= 11'b0;
-      tempDiagAddr2         <= 11'b0;
-      tempNonDiagAddr1      <= 11'b0;
-      tempNonDiagAddr2      <= 11'b0;
-      tempDiagOH1           <= 4'b0;
-      tempDiagOH2           <= 4'b0;
-      tempNonDiagOH1        <= 4'b0;
-      tempNonDiagOH2        <= 4'b0;
-      tempComputedDiagVal1  <= 48'b0;
-      tempComputedDiagVal2  <= 48'b0;
       tempDataSecond        <= 1'b0;
 
       current_state         <= s0;
@@ -107,6 +97,26 @@ begin
       op_writeDone          <= reg_op_writeDone;
 
       tempStoreData         <= reg_tempStoreData;
+      tempDataSecond        <= reg_tempDataSecond;
+
+      current_state         <= next_state;
+   end// not reset and enable
+
+   if(~reset)
+   begin
+      tempDiagAddr1         <= 11'b0;
+      tempDiagAddr2         <= 11'b0;
+      tempNonDiagAddr1      <= 11'b0;
+      tempNonDiagAddr2      <= 11'b0;
+      tempDiagOH1           <= 4'b0;
+      tempDiagOH2           <= 4'b0;
+      tempNonDiagOH1        <= 4'b0;
+      tempNonDiagOH2        <= 4'b0;
+      tempComputedDiagVal1  <= 48'b0;
+      tempComputedDiagVal2  <= 48'b0;
+   end
+   else
+   begin
       tempDiagAddr1         <= reg_tempDiagAddr1;
       tempDiagAddr2         <= reg_tempDiagAddr2;
       tempNonDiagAddr1      <= reg_tempNonDiagAddr1;
@@ -117,10 +127,7 @@ begin
       tempNonDiagOH2        <= reg_tempNonDiagOH2;
       tempComputedDiagVal1  <= reg_tempComputedDiagVal1;
       tempComputedDiagVal2  <= reg_tempComputedDiagVal2;
-      tempDataSecond        <= reg_tempDataSecond;
-
-      current_state         <= next_state;
-   end// not reset
+   end// reset
 end// posedge clock
 
 always@(*)
@@ -136,10 +143,10 @@ begin
          reg_tempNonDiagOH1       = inNonDiagOH;
          reg_tempComputedDiagVal1 = inYComputedVal;
 
-         reg_tempDiagAddr1        = 11'h7ff;
-         reg_tempNonDiagAddr1     = 11'h7ff;
-         reg_tempDiagOH1          = 4'b0;
-         reg_tempNonDiagOH1       = 4'b0;
+         reg_tempDiagAddr2        = 11'h7ff;
+         reg_tempNonDiagAddr2     = 11'h7ff;
+         reg_tempDiagOH2          = 4'b0;
+         reg_tempNonDiagOH2       = 4'b0;
          reg_tempComputedDiagVal2 = 48'b0;
 
          reg_op_WEBit             = 1'b0;
@@ -234,7 +241,7 @@ begin
       reg_tempStoreData        = 256'b0;
       reg_tempDataSecond       = tempDataSecond; // retain value
 
-      next_state               = s1;
+      next_state               = s2;
 
       
       if(reg_wireNonDiagAddr == reg_wireDiagAddr)
@@ -371,8 +378,8 @@ begin
          end
          endcase
 
-         reg_op_readStoreAddr     = reg_wireNonDiagAddr;// fetch both rows
-         reg_op_writeAddress      = reg_wireDiagAddr; // or Nondiag. both are the same
+         reg_op_readStoreAddr     = reg_wireNonDiagAddr;
+         reg_op_writeAddress      = reg_wireDiagAddr; 
 
          next_state               = s3; // need to send next row of data
 

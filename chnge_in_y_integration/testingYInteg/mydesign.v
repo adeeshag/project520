@@ -84,7 +84,7 @@ wire wire_dataPathDoneFlag,wire_filtYopDone;
 
 //-----------------
    roundRobin rR_inst(.reset(reset), .clock(clock),
-      .in_updateYCtrlPathDoneFlag(mydes_dataPathDoneFlag),   .in_updateYwriteDoneFlag(mydes_filtYopDone),
+      .in_updateYCtrlPathDoneFlag(mydes_filtYopDone),   .in_updateYwriteDoneFlag(bWY_op_writeDone),
 
       .op_updateYmoduleEnable(wire_updateYmoduleEnable),     .op_writeYvalEnable(wire_writeYvalEnable)
       );
@@ -109,12 +109,12 @@ busArbit busArbit_inst(.reset(reset),
       );
 //------------
 
-busWriteY busWriteY_inst(.clock(clock), .reset(reset), .inModuleEnable(bWY_inModuleEnable),
-      .cpDoneFlag(bWY_cpDoneFlag),    .dpDoneFlag(bWY_dpDoneFlag),
+busWriteY busWriteY_inst(.clock(clock), .reset(reset), .inModuleEnable(wire_writeYvalEnable),
+      .cpDoneFlag(mydes_filtYopDone),    .dpDoneFlag(mydes_dataPathDoneFlag),
       .inDiagAddr(wire_writeDiagAddr),    .inNonDAddr(wire_writeNonDiagAddr),
       .inDiagOH(wire_writeDiagOneHot),        .inNonDiagOH(wire_writeNonDiagOneHot),
       .inYreadData1(mydes_ySRAM_rowRead1),  .inYreadData2(mydes_ySRAM_rowRead2),
-      .inYComputedVal(bWY_inYComputedVal),
+      .inYComputedVal(mydes_opYval),
       .inYchngData({mydes_chgTxt_real,mydes_chgTxt_img}), 
 
       .op_writeData(bWY_op_writeData),     .op_writeAddress(bWY_op_writeAddress),

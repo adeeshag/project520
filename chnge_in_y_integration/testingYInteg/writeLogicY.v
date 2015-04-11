@@ -47,6 +47,7 @@ reg [10:0]     tempDiagAddr1,tempDiagAddr2,tempNonDiagAddr1,tempNonDiagAddr2;
 reg [3:0]      tempDiagOH1,tempDiagOH2,tempNonDiagOH1,tempNonDiagOH2;
 reg [47:0]     tempComputedDiagVal1,tempComputedDiagVal2;
 reg            tempDataSecond; // like temp_bit. 0 if we're loading first set of data. 1 otherwise
+reg            tempDPFlag,tempCPFlag;
 
 //Combinational logic
 reg [10:0]     reg_tempDiagAddr1,reg_tempDiagAddr2,reg_tempNonDiagAddr1,reg_tempNonDiagAddr2;
@@ -58,11 +59,13 @@ reg [255:0]    reg_op_writeData, reg_tempStoreData;
 reg [10:0]     reg_op_writeAddress,reg_op_readStoreAddr;
 reg [47:0]     reg_tempComputedDiagVal1,reg_tempComputedDiagVal2;
 reg            reg_tempDataSecond; // like temp_bit. 0 if we're loading first set of data. 1 otherwise
+reg            reg_tempDPFlag,reg_tempCPFlag;
 
 //Wires
 reg [47:0]     reg_wireComputedDiagVal;
 reg [10:0]     reg_wireDiagAddr,reg_wireNonDiagAddr;
 reg [3:0]      reg_wireDiagOH,reg_wireNonDiagOH;
+
 
 
 /* parameters */
@@ -114,6 +117,8 @@ begin
       tempNonDiagOH2        <= 4'b0;
       tempComputedDiagVal1  <= 48'b0;
       tempComputedDiagVal2  <= 48'b0;
+      tempDPFlag            <= 1'b0;
+      tempCPFlag            <= 1'b0;
    end
    else
    begin
@@ -127,14 +132,29 @@ begin
       tempNonDiagOH2        <= reg_tempNonDiagOH2;
       tempComputedDiagVal1  <= reg_tempComputedDiagVal1;
       tempComputedDiagVal2  <= reg_tempComputedDiagVal2;
+      tempDPFlag            <= reg_tempDPFlag;
+      tempCPFlag            <= reg_tempCPFlag;
    end// reset
 end// posedge clock
 
 always@(*)
 begin
+   reg_tempDPFlag           = dpDoneFlag;
+   reg_tempCPFlag           = cpDoneFlag;
+
    case(current_state)
    s0:
    begin
+
+      if(tempDPFlag & (~(tempCPFlag)))
+         next_state               = s0;
+      else if(tempDPFlag & (~(tempCPFlag)))
+         next_state               = s1;
+      else
+         next_state               = s1;
+
+
+
       if(dpDoneFlag&(~(cpDoneFlag)))
       begin
          reg_tempDiagAddr1        = inDiagAddr;
@@ -158,7 +178,7 @@ begin
          reg_tempStoreData        = 256'b0;
          reg_tempDataSecond       = 1'b0;
 
-         next_state               = s0;
+
 
       end// dpDoneFlag=1, cpDoneFlag=0
       else if(dpDoneFlag&cpDoneFlag)
@@ -184,7 +204,7 @@ begin
          reg_tempStoreData        = 256'b0;
          reg_tempDataSecond       = 1'b0;
 
-         next_state               = s1;
+
       end// dpDoneFlag=1, cpDoneFlag=1
       else
       begin
@@ -210,7 +230,7 @@ begin
          reg_tempStoreData        = 256'b0;
          reg_tempDataSecond       = 1'b0;
 
-         next_state               = s0;
+
       end// end-else
    end//s0
    s1:

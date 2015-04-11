@@ -44,6 +44,8 @@ module updateYcomputation (clock, reset, computationEnable,
                uYc_writeNonDiagAddr;
  wire [3:0]    uYc_writeDiagOneHot,
                uYc_writeNonDiagOneHot;
+
+wire [10:0] wire_inAddr1, wire_inAddr2;
    
 
 /***************** Modules Instantiation *******************/
@@ -61,7 +63,7 @@ updateY_control unit_controlY1 (.clock(clock), .reset(reset), .exModDone(wire_ex
      .chng_real(uYc_chgTxt_real),.chng_img(uYc_chgTxt_img),
      .ymem_data1(uYc_ySRAM_rowRead1), .ymem_data2(uYc_ySRAM_rowRead2), .filt_EN(computationEnable),
      .yMemDataReadyNextCycle(wire_dataOuNxtCycle),
-     .yAddrIn1(uYc_yMatAddrOut1), .yAddrIn2(uYc_yMatAddrOut2),
+     .yAddrIn1(wire_inAddr1), .yAddrIn2(wire_inAddr2),
 
      .op_y_row(uYc_opRowNum_from_filtY),  .op_EX_EN(wire_execEnable), 
      .op_yVal1(uYc_filtYval1), .op_yVal2(uYc_filtYval2),
@@ -78,6 +80,8 @@ yAddrDecodr unit_yAD1 (.clock(clock), .reset (reset), .yAD_enable(wire_yAD_Enabl
       );
 
 	
+assign wire_inAddr1 = uYc_yMatAddrOut1;
+assign wire_inAddr2 = uYc_yMatAddrOut2;
 
 endmodule
 

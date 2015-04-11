@@ -65,11 +65,18 @@ begin
       case({in_yComputeModuleEnable,in_yWriteModuleEnable})
       2'b00:
       begin
+      /*
          op_yReadAddress1  = in_controlPathReadAddr1;
          op_yReadAddress2  = in_controlPathReadAddr2;
          op_yWriteEnable   = in_controlPathWE;
          op_yWriteAddress  = in_controlPathWriteAddr;
          op_writeData      = in_controlPathWriteData;
+      */
+         op_yReadAddress1  = 11'h7ff;
+         op_yReadAddress2  = 11'h56;
+         op_yWriteEnable   = 1'b0;
+         op_yWriteAddress  = 11'h7ff;
+         op_writeData      = 256'b0;
       end//00
       2'b01:
       begin
@@ -89,11 +96,18 @@ begin
       end//10
       default: // not supposed to happen
       begin
+      /*
          op_yReadAddress1  = in_controlPathReadAddr1;
          op_yReadAddress2  = in_controlPathReadAddr2;
          op_yWriteEnable   = in_controlPathWE;
          op_yWriteAddress  = in_controlPathWriteAddr;
          op_writeData      = in_controlPathWriteData;
+      */
+         op_yReadAddress1  = 11'h7ff;
+         op_yReadAddress2  = 11'h7ff;
+         op_yWriteEnable   = 1'b0;
+         op_yWriteAddress  = 11'h7ff;
+         op_writeData      = 256'b0;
       end// default
       endcase
    end// not reset

@@ -36,13 +36,14 @@ reg [15:0] temp_oldRow;
 
 always@(posedge clock)
 begin
-   if(!reset | !yAD_enable) //synhronous reset
+   if(~(reset & yAD_enable)) //synhronous reset
    begin
       yAD_outAddr1         <= 11'h7FF; 
       yAD_outAddr2         <= 11'h7FF;
       yAD_dataOutNextCycle <= 1'b0;
       temp_bit             <= 1'b1;
       reg_readEn           <= 1'b0;
+      temp_oldRow          <= 11'h7ff;
    end
    else
    begin
@@ -62,7 +63,7 @@ begin
             yAD_outAddr2         <= 11'h7FF;
             reg_readEn           <= 1'b1;
             temp_bit             <= 1'b0;
-            temp_oldRow          <= yAD_readRowData;
+            temp_oldRow          <= yAD_readRowNum;
             if(yAD_enable)
                yAD_dataOutNextCycle <= 1'b1;  //FSM dependent output
             else

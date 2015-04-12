@@ -97,19 +97,19 @@ begin
    else
    begin
 
-      current_state  <= next_state;
+      current_state        <= next_state;
 
-      op_yVal1       <= reg_op_yVal1;
-      op_yVal2       <= reg_op_yVal2;
-      op_EX_EN       <= reg_op_EX_EN;
-      op_y_row       <= reg_op_y_row;
-      op_DataEN      <= reg_op_dataEN;
-      op_yAddrDiag     <= reg_op_yAddrDiag;
-      op_yAddrNonDiag     <= reg_op_yAddrNonDiag;
-      op_oneHotDiag    <= reg_op_oneHotDiag;
-      op_oneHotNonDiag    <= reg_op_oneHotNonDiag;
+      op_yVal1             <= reg_op_yVal1;
+      op_yVal2             <= reg_op_yVal2;
+      op_EX_EN             <= reg_op_EX_EN;
+      op_y_row             <= reg_op_y_row;
+      op_DataEN            <= reg_op_dataEN;
+      op_yAddrDiag         <= reg_op_yAddrDiag;
+      op_yAddrNonDiag      <= reg_op_yAddrNonDiag;
+      op_oneHotDiag        <= reg_op_oneHotDiag;
+      op_oneHotNonDiag     <= reg_op_oneHotNonDiag;
 
-      temp_yVal      <= reg_temp_yVal;
+      temp_yVal            <= reg_temp_yVal;
 
    end
 end
@@ -127,10 +127,10 @@ begin
       reg_op_EX_EN         = 1'b0;
       reg_op_y_row         = 16'hffff;
       reg_op_dataEN        = 1'b0;
-      reg_op_yAddrDiag       = op_yAddrDiag;
-      reg_op_yAddrNonDiag       = op_yAddrNonDiag;
-      reg_op_oneHotDiag      = op_oneHotDiag;
-      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
+      reg_op_yAddrDiag     = op_yAddrDiag;
+      reg_op_yAddrNonDiag  = op_yAddrNonDiag;
+      reg_op_oneHotDiag    = op_oneHotDiag;
+      reg_op_oneHotNonDiag = op_oneHotNonDiag;
       reg_temp_yVal        = 48'b0;
 
       // Set next state
@@ -148,16 +148,16 @@ begin
 /***********************     S1       ********************/
    s1: begin
       //Set outputs
-      reg_op_yVal1         = 48'b0;
-      reg_op_yVal2         = 48'b0;
-      reg_op_y_row         = chng_row;
-      reg_temp_yVal        = 48'b0;
-      reg_op_dataEN        = 1'b1; // start fetching data
-      reg_op_EX_EN         = 1'b0;
-      reg_op_yAddrDiag       = op_yAddrDiag; // Diagonal element
-      reg_op_yAddrNonDiag       = op_yAddrNonDiag; // Non Diagonal
-      reg_op_oneHotDiag      = op_oneHotDiag;
-      reg_op_oneHotNonDiag      = op_oneHotNonDiag;
+      reg_op_yVal1            = 48'b0;
+      reg_op_yVal2            = 48'b0;
+      reg_op_y_row            = chng_row;
+      reg_temp_yVal           = 48'b0;
+      reg_op_dataEN           = 1'b1; // start fetching data
+      reg_op_EX_EN            = 1'b0;
+      reg_op_yAddrDiag        = op_yAddrDiag; // Diagonal element
+      reg_op_yAddrNonDiag     = op_yAddrNonDiag; // Non Diagonal
+      reg_op_oneHotDiag       = op_oneHotDiag;
+      reg_op_oneHotNonDiag    = op_oneHotNonDiag;
 
       // Set next state
       if(yMemDataReadyNextCycle) // get this from the yAddrDecoder.v 
@@ -403,19 +403,19 @@ begin
          end
          else
          begin
-            reg_temp_yVal     = 48'b0;
-            reg_op_dataEN     = 1'b1;
-            reg_op_oneHotNonDiag   = 4'b0000;
-            reg_op_yAddrNonDiag    = 11'h7ff;
+            reg_temp_yVal           = 48'b0;
+            reg_op_dataEN           = 1'b1;
+            reg_op_oneHotNonDiag    = 4'b0000;
+            reg_op_yAddrNonDiag     = 11'h7ff;
          end
       end
       else
       begin
       //Shouldn't come here
-      reg_op_yVal2       = 48'bz;
-      reg_op_y_row       = 16'hffff; // invalid
-      reg_op_dataEN      = 1'b0;
-      reg_op_EX_EN       = 1'b0;
+      reg_op_yVal2            = 48'bz;
+      reg_op_y_row            = 16'hffff; // invalid
+      reg_op_dataEN           = 1'b0;
+      reg_op_EX_EN            = 1'b0;
       reg_op_oneHotNonDiag    = 4'bz;
       reg_op_yAddrNonDiag     = 11'h7ff;
       end// if-else main nest

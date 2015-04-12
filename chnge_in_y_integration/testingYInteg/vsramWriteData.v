@@ -33,7 +33,7 @@ module vSRAMwrite(input clock,  input reset,    input in_writeEnable,
                   output reg [47:0] sram_1_writeData, 
                   output reg [47:0] sram_2_writeData, 
                   output reg [47:0] sram_3_writeData, 
-                  output reg [47:0] sram_4_writeData, 
+                  output reg [47:0] sram_4_writeData 
                  );
 
 /* Wires and regs */

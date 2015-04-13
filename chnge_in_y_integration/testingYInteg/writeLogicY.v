@@ -236,7 +236,7 @@ begin
    s1:
    begin // which row(s) to fetch
       reg_wireComputedDiagVal = (tempDataSecond?tempComputedDiagVal2:tempComputedDiagVal1);// mux
-      reg_wireDiagAddr        = (tempDataSecond?tempNonDiagAddr2:tempDiagAddr1);
+      reg_wireDiagAddr        = (tempDataSecond?tempDiagAddr2:tempDiagAddr1);
       reg_wireNonDiagAddr     = (tempDataSecond?tempNonDiagAddr2:tempNonDiagAddr1);
       reg_wireDiagOH          = (tempDataSecond?tempDiagOH2:tempDiagOH1);
       reg_wireNonDiagOH       = (tempDataSecond?tempNonDiagOH2:tempNonDiagOH1);
@@ -340,7 +340,7 @@ begin
          reg_op_readStoreAddr     = 11'h7ff; // second row is not needed
          reg_op_writeAddress      = reg_wireDiagAddr; // or Nondiag. both are the same
 
-         reg_tempDataSecond       = (tempDataSecond?1'b0:tempDataSecond);
+         reg_tempDataSecond       = (tempDataSecond?1'b0:1'b1); 
          
          next_state               = (tempDataSecond?s0:s1); 
 

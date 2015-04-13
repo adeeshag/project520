@@ -763,7 +763,7 @@ begin
 
          reg_op_yVal1    = 48'b0;
          reg_op_yVal2    = 48'b0;
-         reg_op_y_row    = chng_col;
+         reg_op_y_row    = 16'hffff;
          reg_temp_yVal   = 48'b0; // retain old value
          reg_op_dataEN   = 1'b1; // start fetching data
          reg_op_EX_EN    = 1'b0;
@@ -852,6 +852,7 @@ begin
 
             reg_op_oneHotNonDiag   = 4'b0000;
             reg_op_yAddrNonDiag    = 11'h7ff;
+            reg_op_y_row         = 16'hffff; // invalid
          end
          //end if-else
          //
@@ -910,6 +911,7 @@ begin
             reg_op_dataEN   = 1'b1;
             reg_op_oneHotNonDiag   = 4'b0000;
             reg_op_yAddrNonDiag    = 11'h7ff;
+            reg_op_y_row         = 16'hffff; // invalid
          end
          //end if-else
          //
@@ -961,6 +963,7 @@ begin
             reg_op_dataEN   = 1'b1;
             reg_op_oneHotNonDiag   = 4'b0000;
             reg_op_yAddrNonDiag    = 11'h7ff;
+            reg_op_y_row         = 16'hffff; // invalid
          end
          //end if-else
          //
@@ -1000,10 +1003,11 @@ begin
          end
          else
          begin
-            reg_temp_yVal   = 48'b0;
-            reg_op_dataEN   = 1'b1;
-            reg_op_oneHotNonDiag   = 4'b0000;
-            reg_op_yAddrNonDiag    = 11'h7ff;
+            reg_temp_yVal        = 48'b0;
+            reg_op_dataEN        = 1'b1;
+            reg_op_oneHotNonDiag = 4'b0000;
+            reg_op_yAddrNonDiag  = 11'h7ff;
+            reg_op_y_row         = 16'hffff; // invalid
          end
       end
       else
@@ -1065,10 +1069,11 @@ begin
       else
       begin
          //Now check for the diag element
-         if((ymem_data1[255:240])==(chng_col)) 
+         if((ymem_data1[255:240])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b1000;
             reg_op_yAddrNonDiag    = yAddrIn1;
+            reg_temp_yVal          = ymem_data1[239:192];
 
             if(exModDone)
             begin
@@ -1078,7 +1083,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0; 
 
-               reg_temp_yVal      = ymem_data1[239:192];
 
                next_state         = s7;
             end
@@ -1089,17 +1093,17 @@ begin
                reg_op_yVal2    = 48'b0;
                reg_op_EX_EN    = 1'b1;
                reg_op_y_row    = 16'hffff;// Don't fetch 
-               reg_op_dataEN      = 1'b0;
+               reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data1[239:192];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data1[191:176])==(chng_col)) 
+         else if((ymem_data1[191:176])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0100;
             reg_op_yAddrNonDiag    = yAddrIn1;
+            reg_temp_yVal   = ymem_data1[175:128];
 
             if(exModDone)
             begin
@@ -1109,7 +1113,6 @@ begin
                reg_op_y_row          = 16'hffff;// Don't fetch 
                reg_op_dataEN         = 1'b0;
 
-               reg_temp_yVal         = ymem_data1[175:128];
 
                next_state            = s7;
             end
@@ -1122,15 +1125,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data1[175:128];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data1[127:112])==(chng_col)) 
+         else if((ymem_data1[127:112])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0010;
             reg_op_yAddrNonDiag    = yAddrIn1;
+            reg_temp_yVal      = ymem_data1[111:64];
 
             if (exModDone)
             begin
@@ -1140,7 +1143,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0;
 
-               reg_temp_yVal      = ymem_data1[111:64];
 
                next_state         = s7;
             end
@@ -1153,15 +1155,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data1[111:64];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data1[63:48])==(chng_col)) 
+         else if((ymem_data1[63:48])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0001;
             reg_op_yAddrNonDiag    = yAddrIn1;
+            reg_temp_yVal      = ymem_data1[47:0];
 
             if(exModDone)
             begin
@@ -1171,7 +1173,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0;
 
-               reg_temp_yVal      = ymem_data1[47:0];
 
                next_state         = s7;
             end
@@ -1184,15 +1185,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data1[47:0];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data2[255:240])==(chng_col)) 
+         else if((ymem_data2[255:240])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b1000;
             reg_op_yAddrNonDiag    = yAddrIn2;
+            reg_temp_yVal      = ymem_data2[239:192];
 
             if(exModDone)
             begin
@@ -1202,7 +1203,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0; 
 
-               reg_temp_yVal      = ymem_data2[239:192];
 
                next_state         = s7;
             end
@@ -1215,15 +1215,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN      = 1'b0;
 
-               reg_temp_yVal   = ymem_data2[239:192];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data2[191:176])==(chng_col)) 
+         else if((ymem_data2[191:176])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0100;
             reg_op_yAddrNonDiag    = yAddrIn2;
+            reg_temp_yVal   = ymem_data2[175:128];
 
             if(exModDone)
             begin
@@ -1233,7 +1233,6 @@ begin
                reg_op_y_row          = 16'hffff;// Don't fetch 
                reg_op_dataEN         = 1'b0;
 
-               reg_temp_yVal         = ymem_data2[175:128];
 
                next_state            = s7;
             end
@@ -1246,15 +1245,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data2[175:128];
 
                next_state  = s6; 
             end // if-else of exModDone
          end
-         else if((ymem_data2[127:112])==(chng_col)) 
+         else if((ymem_data2[127:112])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0010;
             reg_op_yAddrNonDiag    = yAddrIn2;
+            reg_temp_yVal      = ymem_data2[111:64];
 
             if (exModDone)
             begin
@@ -1264,7 +1263,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0;
 
-               reg_temp_yVal      = ymem_data2[111:64];
 
                next_state         = s7;
             end
@@ -1277,15 +1275,15 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data2[111:64];
 
                next_state  = s7; 
             end // if-else of exModDone
          end
-         else if((ymem_data2[63:48])==(chng_col)) 
+         else if((ymem_data2[63:48])==(chng_row)) 
          begin
             reg_op_oneHotNonDiag   = 4'b0001;
             reg_op_yAddrNonDiag    = yAddrIn2;
+            reg_temp_yVal      = ymem_data2[47:0];
 
             if(exModDone)
             begin
@@ -1295,7 +1293,6 @@ begin
                reg_op_y_row       = 16'hffff;
                reg_op_dataEN      = 1'b0;
 
-               reg_temp_yVal      = ymem_data2[47:0];
 
                next_state         = s7;
             end
@@ -1308,7 +1305,6 @@ begin
                reg_op_y_row    = 16'hffff;// Don't fetch 
                reg_op_dataEN   = 1'b0;
 
-               reg_temp_yVal   = ymem_data2[47:0];
 
                next_state  = s6; 
             end // if-else of exModDone
@@ -1336,10 +1332,6 @@ begin
 
    //
    //
-      reg_op_yVal2    = 48'b0;
-      reg_op_y_row    = 16'hffff;
-      reg_temp_yVal   = temp_yVal; // retain old value
-      reg_op_dataEN   = 1'b0; // fetching data is done 
       reg_op_EX_EN    = 1'b1; // this can be either exModDone or data isn't ready
 
       if(exModDone)

@@ -28,7 +28,7 @@ module tb2;
 	initial	begin
 	  	//$dumpfile("Tut2.vcd"); // save waveforms in this file
 	  	//$dumpvars;  // saves all waveforms
-	   $readmemh("ymem_datasingle.mem", u1.memory_inst.Y1.Register); 	
+	   $readmemh("ymem_small.mem", u1.memory_inst.Y1.Register); 	
       
       reset       = 0;
       clock       = 0;
@@ -46,12 +46,13 @@ module tb2;
 
 
 top u1(.clock(clock), .reset(reset),
-      .top_chgTxt_row(16'h0000), .top_chgTxt_col(16'h0010), 
-      .top_chgTxt_real(24'h4ebd90),.top_chgTxt_img(24'h5c2e27), 
+      .top_chgTxt_row(16'h0012), .top_chgTxt_col(16'h0009), 
+      .top_chgTxt_real(24'h517bf4),.top_chgTxt_img(24'h5fa0aa), 
       .top_opYval(finalVal)
       );
 
 	
+ 
 	
 endmodule
 

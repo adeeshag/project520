@@ -64,6 +64,7 @@ begin
             reg_readEn           <= 1'b1;
             temp_bit             <= 1'b0;
             temp_oldRow          <= yAD_readRowNum;
+
             if(yAD_enable)
                yAD_dataOutNextCycle <= 1'b1;  //FSM dependent output
             else

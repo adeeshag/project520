@@ -18,7 +18,50 @@ module myDesign(clock, reset,
 
       mydes_op_fpIn1, mydes_op_fpIn2,
       mydes_op_fpMode,
-      mydes_in_fpOut
+      mydes_in_fpOut,
+
+      //Integ
+      mydes_y_feed_mult, mydes_v_feed_mult,
+      mydes_accum_feed,
+
+      sram_1_addressline_1,sram_1_addressline_2, 
+      sram_2_addressline_1,sram_2_addressline_2, 
+      sram_3_addressline_1,sram_3_addressline_2, 
+      sram_4_addressline_1,sram_4_addressline_2, 
+      sram_1_readline_1,sram_1_readline_2, 
+      sram_2_readline_1,sram_2_readline_2, 
+      sram_3_readline_1,sram_3_readline_2, 
+      sram_4_readline_1,sram_4_readline_2, 
+
+      sram1_WriteAddress1, 
+      sram2_WriteAddress1, 
+      sram3_WriteAddress1, 
+      sram4_WriteAddress1, 
+      WE_1, 
+      WE_2, 
+      WE_3, 
+      WE_4, 
+      sram1_WriteBus1, 
+      sram2_WriteBus1, 
+      sram3_WriteBus1, 
+      sram4_WriteBus1, 
+
+      mydes_inImemData,
+      mydes_inImemAddr,
+
+      mydes_in1_sub1,mydes_in2_sub1,
+      mydes_opt_sub1,
+
+      mydes_in1_adder1,mydes_in2_adder1,
+      mydes_opt_adder1,
+      mydes_adder1_mode,
+
+      mydes_in1_adder2,mydes_in2_adder2,
+      mydes_opt_adder2,
+      mydes_adder2_mode,
+
+      mydes_op_dividerIn1,mydes_op_dividerIn2,
+      mydes_in_outputOfDivider
       );
 
 /********** Module Inputs and Outputs **************/
@@ -72,9 +115,60 @@ module myDesign(clock, reset,
 
 // For roundRobin
 
-   wire wire_updateYmoduleEnable, wire_writeYvalEnable;
+   wire wire_updateYmoduleEnable, wire_writeYvalEnable,wire_integModEnable;
    wire wire_dataPathDoneFlag,wire_filtYopDone;
 
+// For integrate module
+   output wire [47:0] mydes_y_feed_mult, mydes_v_feed_mult;
+   input [47:0] mydes_accum_feed;
+
+   output wire [8:0]  sram_1_addressline_1,sram_1_addressline_2; 
+   output wire [8:0]  sram_2_addressline_1,sram_2_addressline_2; 
+   output wire [8:0]  sram_3_addressline_1,sram_3_addressline_2; 
+   output wire [8:0]  sram_4_addressline_1,sram_4_addressline_2; 
+   input [47:0] sram_1_readline_1,sram_1_readline_2; 
+   input [47:0] sram_2_readline_1,sram_2_readline_2; 
+   input [47:0] sram_3_readline_1,sram_3_readline_2; 
+   input [47:0] sram_4_readline_1,sram_4_readline_2; 
+   output [8:0] sram1_WriteAddress1; 
+   output [8:0] sram2_WriteAddress1; 
+   output [8:0] sram3_WriteAddress1; 
+   output [8:0] sram4_WriteAddress1; 
+   output wire WE_1; 
+   output wire WE_2; 
+   output wire WE_3; 
+   output wire WE_4; 
+   input [47:0] sram1_WriteBus1; 
+   input [47:0] sram2_WriteBus1; 
+   input [47:0] sram3_WriteBus1; 
+   input [47:0] sram4_WriteBus1; 
+
+   wire [10:0]  integ_wire_yAddr1, integ_wire_yAddr2;
+
+   input [191:0] mydes_inImemData;
+   output wire [7:0]   mydes_inImemAddr;
+
+
+   wire wire_control_vsram_section,wire_vsram_read_control;
+   wire wire_iter_done;
+
+   output wire [47:0]   mydes_in1_sub1,mydes_in2_sub1;
+   input [47:0]         mydes_opt_sub1;
+
+   output wire [47:0]   mydes_in1_adder1,mydes_in2_adder1;
+   input [47:0]         mydes_opt_adder1;
+   output wire          mydes_adder1_mode;
+
+   output wire [47:0]   mydes_in1_adder2,mydes_in2_adder2;
+   input [47:0]         mydes_opt_adder2;
+   output wire          mydes_adder2_mode;
+
+   output wire [47:0]   mydes_op_dividerIn1,mydes_op_dividerIn2;
+   input [47:0]         mydes_in_outputOfDivider;
+
+
+ // For counter Control Mod
+   wire wire_enableAccumCalc, wire_allItersDoneFlag;
 
  /*********Assign For testing ******/
    assign mydes_yMatOut1 = mydes_ySRAM_rowRead1;
@@ -82,7 +176,7 @@ module myDesign(clock, reset,
 
    assign writeDoneFlag = bWY_op_writeDone;
 /***************** Modules Instan *******************/
-	updateYcomputation uYc_inst (	.clock(clock),  .reset(reset), .computationEnable(wire_updateYmoduleEnable),
+	updateYcomputation uYc_inst (	.clock(clock), .reset(reset),.computationEnable(wire_updateYmoduleEnable),
 
             .uYc_chgTxt_row(mydes_chgTxt_row),  .uYc_chgTxt_col(mydes_chgTxt_col),
             .uYc_chgTxt_real(mydes_chgTxt_real), .uYc_chgTxt_img(mydes_chgTxt_img),
@@ -101,10 +195,10 @@ module myDesign(clock, reset,
 			);
 
 //-----------------
-   roundRobin rR_inst(.reset(reset), .clock(clock), .soft_rst(bWY_op_writeDone),
+   roundRobin rR_inst(.reset(reset), .clock(clock),     .soft_rst(bWY_op_writeDone),
       .in_updateYCtrlPathDoneFlag(mydes_filtYopDone),   .in_updateYwriteDoneFlag(bWY_op_writeDone),
-
-      .op_updateYmoduleEnable(wire_updateYmoduleEnable),     .op_writeYvalEnable(wire_writeYvalEnable)
+      .op_updateYmoduleEnable(wire_updateYmoduleEnable),     .op_writeYvalEnable(wire_writeYvalEnable),
+      .op_integrateModEnable(wire_integModEnable)
       );
 //------------
 
@@ -119,6 +213,10 @@ busArbit busArbit_inst(.reset(reset),
        .in_writePathReadAddr1(bWY_op_writeAddress), .in_writePathReadAddr2(bWY_op_readStoreAddr),
        .in_writePathWE(bWY_op_WEbit),        .in_writePathWriteAddr(bWY_op_writeAddress),
        .in_writePathWriteData(bWY_op_writeData),
+
+       .in_computePathReadAddr1(integ_wire_yAddr1), .in_computePathReadAddr2(integ_wire_yAddr2),
+       .in_computePathWE(1'b0),          .in_computePathWriteAddr(11'h7ff),
+       .in_computePathWriteData(256'b0),
 
        .op_yReadAddress1(mydes_op_yReadAddress1), .op_yReadAddress2(mydes_op_yReadAddress2),
        .op_yWriteEnable(mydes_op_yWriteEnable),  .op_yWriteAddress(mydes_op_yWriteAddress),
@@ -140,12 +238,65 @@ busWriteY busWriteY_inst(.clock(clock), .reset(reset), .inModuleEnable(wire_writ
       .op_writeDone(bWY_op_writeDone)
       );
 
-// Memories instantiation
-/*
-//Y SRAM
-   y_sram Y_mem(.clock(clock), .WE(1'b0), .WriteAddress(wire_yAddrWrite),
-         .ReadAddress1(wire_yAddrOut1), .ReadAddress2(wire_yAddrOut2), .WriteBus(wire_yDataWrite),
-         .ReadBus1(mydes_ySRAM_rowRead1), .ReadBus2(mydes_ySRAM_rowRead2));	
-*/
+
+integrate integ_inst(.clock(clock),.reset(reset),.enable(wire_enableAccumCalc),
+
+      .y_feed_mult(mydes_y_feed_mult),.v_feed_mult(mydes_v_feed_mult),
+      .accum_feed(mydes_accum_feed),
+
+      .sram_1_addressline_1(sram_1_addressline_1),.sram_1_addressline_2(sram_1_addressline_2),
+	   .sram_2_addressline_1(sram_2_addressline_1),.sram_2_addressline_2(sram_2_addressline_2),
+	   .sram_3_addressline_1(sram_3_addressline_1),.sram_3_addressline_2(sram_3_addressline_2),
+	   .sram_4_addressline_1(sram_4_addressline_1),.sram_4_addressline_2(sram_4_addressline_2),
+
+	   .sram_1_readline_1(sram_1_readline_1),.sram_1_readline_2(sram_1_readline_2),
+	   .sram_2_readline_1(sram_2_readline_1),.sram_2_readline_2(sram_2_readline_2),
+	   .sram_3_readline_1(sram_3_readline_1),.sram_3_readline_2(sram_3_readline_2),
+	   .sram_4_readline_1(sram_4_readline_1),.sram_4_readline_2(sram_4_readline_2),
+
+      .Y_addressline_1(integ_wire_yAddr1),.ReadAddress2(integ_wire_yAddr2),
+      .Yin(mydes_ySRAM_rowRead1),	
+
+      .I_input(mydes_inImemData),.I_sram_addressline_1(mydes_inImemAddr),
+//___________________________________________________________________________________________________
+      .in1_sub1(mydes_in1_sub1),.in2_sub1(mydes_in2_sub1),.opt_sub1(mydes_opt_sub1),
+
+      .op_dividerIn1(mydes_op_dividerIn1),.op_dividerIn2(mydes_op_dividerIn2), 
+      .in_outputOfDivider(mydes_in_outputOfDivider),
+//----------------------------------------------------------------------------------------------------
+      .sram_1_writeAddressline(sram1_WriteAddress1), 
+      .sram_2_writeAddressline(sram2_WriteAddress1), 
+      .sram_3_writeAddressline(sram3_WriteAddress1), 
+      .sram_4_writeAddressline(sram4_WriteAddress1), 
+      .sram_1_writeEnable(WE_1), 
+      .sram_2_writeEnable(WE_2), 
+      .sram_3_writeEnable(WE_3), 
+      .sram_4_writeEnable(WE_4), 
+      .sram_1_writeData(sram1_WriteBus1), 
+      .sram_2_writeData(sram2_WriteBus1), 
+      .sram_3_writeData(sram3_WriteBus1), 
+      .sram_4_writeData(sram4_WriteBus1), 
+
+		.control_vsram_section(wire_control_vsram_section),.vsram_read_control(wire_vsram_read_control),
+                              .iter_done(wire_iter_done),
+
+      .in1_adder1(mydes_in1_adder1), .in2_adder1(mydes_in2_adder1),
+      .opt_adder1(mydes_opt_adder1), .adder1_mode(mydes_adder1_mode),
+
+      .in1_adder2(mydes_in1_adder2), .in2_adder2 (mydes_in2_adder2),
+      .opt_adder2(mydes_opt_adder2), .adder2_mode(mydes_adder2_mode)
+
+      );
+
+// Control Counter for Iter
+controlCounterIter controlCounterIter_inst( .reset(reset), .clock(clock),
+                           .in_accumCalcDoneFlag(wire_iter_done), .in_enableEntireModule(wire_integModEnable),
+
+                           .op_enableAccumCalc(wire_enableAccumCalc), 
+                           .op_allItersDoneFlag(wire_allItersDoneFlag),
+                           .op_control_vsram_section(wire_control_vsram_section),   
+                           .op_vsram_read_control(wire_vsram_read_control)	
+      );
+
 
 endmodule

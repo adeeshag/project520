@@ -6,6 +6,7 @@
  *
  * Inputs: 1. Control Path done flag
  *         2. write module done flag
+ *         3. clock, reset and soft reset
  *
  * Output: 1. updateY Module enable
  *         2. write Y module enable 
@@ -13,7 +14,7 @@
  *
  * *****************************************************************/
 
-module roundRobin(input reset, input clock,
+module roundRobin(input reset, input clock, input soft_rst, 
       input in_updateYCtrlPathDoneFlag, input in_updateYwriteDoneFlag,
 
       output reg op_updateYmoduleEnable, output reg op_writeYvalEnable
@@ -32,7 +33,7 @@ reg reg_op_updateYmoduleEnable,reg_op_writeYvalEnable;
 
 always @(posedge clock)
 begin
-   if(~(reset))
+   if((~(reset)) | soft_rst)
    begin
       op_updateYmoduleEnable  <= 1'b1; // change this later
       op_writeYvalEnable      <= 1'b0;

@@ -1,4 +1,5 @@
 module top(clock, reset,
+      writeDoneFlag,
       top_chgTxt_row,top_chgTxt_col, 
       top_chgTxt_real,top_chgTxt_img, 
       top_opYval
@@ -6,6 +7,7 @@ module top(clock, reset,
 
 /********** Module Inputs and Outputs **************/
 	input clock, reset;
+   output wire writeDoneFlag;
 
    input [15:0]   top_chgTxt_row,top_chgTxt_col; //From change.txt
    input [23:0]   top_chgTxt_real, top_chgTxt_img;
@@ -37,6 +39,7 @@ module top(clock, reset,
 
 /***************** Modules Instan *******************/
 myDesign myDes_inst(.clock(clock), .reset(reset),
+      .writeDoneFlag(writeDoneFlag),
       .mydes_chgTxt_row(top_chgTxt_row),     .mydes_chgTxt_col(top_chgTxt_col), 
       .mydes_chgTxt_real(top_chgTxt_real),    .mydes_chgTxt_img(top_chgTxt_img), 
       .mydes_ySRAM_rowRead1(wire_ySRAM_rowRead1), .mydes_ySRAM_rowRead2(wire_ySRAM_rowRead2),

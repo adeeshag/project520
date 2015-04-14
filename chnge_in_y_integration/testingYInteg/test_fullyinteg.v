@@ -6,25 +6,27 @@ module tb2;
    reg [255:0] ydataWrite;
    reg [23:0] inReal,inImg;
    reg [15:0] rowIn,colIn;
+   wire writeDoneFlag;
 //	wire 	[7:0] 		data1, data2;
 //	wire 	[9:0] 		address1, address2;
 //	wire				rd_en1, rd_en2;
 //
    wire[47:0] finalVal;
+   integer data_file,scan_file;
+   //integer i=0;
 	
    
   // integer data_file,scan_file;
   // integer isram_file,isram_scan;
-/*
    initial
    begin
-      data_file = $fopen("change_data1.txt","r");
+      data_file = $fopen("change_small.txt","r");
       if(data_file == 0) begin
          $display(" File Handle was NULL\n");
          $finish;
       end
     end
-*/
+
 	initial	begin
 	  	//$dumpfile("Tut2.vcd"); // save waveforms in this file
 	  	//$dumpvars;  // saves all waveforms
@@ -33,21 +35,32 @@ module tb2;
       reset       = 0;
       clock       = 0;
 
+      while(!$feof(data_file)) begin
+      
+      scan_file = $fscanf(data_file, "%h %h %h %h\n",rowIn,colIn,inReal, inImg); 
+
       #(CLKPERIOD*2)
             reset = 1;
+
+         @(posedge writeDoneFlag);
 
        
 
 
-	    #(100*CLKPERIOD) $finish;
+	   // #(50*CLKPERIOD) 
+          
+
+       end// while
+      $finish;
 	  end
 	
 	always #(CLKPERIOD/2) clock = ~clock;
 
 
 top u1(.clock(clock), .reset(reset),
-      .top_chgTxt_row(16'h0012), .top_chgTxt_col(16'h0009), 
-      .top_chgTxt_real(24'h517bf4),.top_chgTxt_img(24'h5fa0aa), 
+      .writeDoneFlag(writeDoneFlag),
+      .top_chgTxt_row(rowIn), .top_chgTxt_col(colIn), 
+      .top_chgTxt_real(inReal),.top_chgTxt_img(inImg), 
       .top_opYval(finalVal)
       );
 

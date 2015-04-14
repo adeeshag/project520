@@ -7,6 +7,7 @@
 //(like  top.v)
 //
 module myDesign(clock, reset,
+      writeDoneFlag,
       mydes_chgTxt_row,mydes_chgTxt_col, 
       mydes_chgTxt_real,mydes_chgTxt_img, 
       mydes_ySRAM_rowRead1,mydes_ySRAM_rowRead2,
@@ -22,6 +23,8 @@ module myDesign(clock, reset,
 
 /********** Module Inputs and Outputs **************/
 	input clock, reset;
+
+   output wire writeDoneFlag;
 
    input [15:0]   mydes_chgTxt_row,mydes_chgTxt_col; //From change.txt
    input [23:0]   mydes_chgTxt_real, mydes_chgTxt_img;
@@ -72,11 +75,12 @@ module myDesign(clock, reset,
    wire wire_updateYmoduleEnable, wire_writeYvalEnable;
    wire wire_dataPathDoneFlag,wire_filtYopDone;
 
-//Testing	
 
  /*********Assign For testing ******/
    assign mydes_yMatOut1 = mydes_ySRAM_rowRead1;
    assign mydes_yMatOut2 = mydes_ySRAM_rowRead2;
+
+   assign writeDoneFlag = bWY_op_writeDone;
 /***************** Modules Instan *******************/
 	updateYcomputation uYc_inst (	.clock(clock),  .reset(reset), .computationEnable(wire_updateYmoduleEnable),
 
@@ -97,7 +101,7 @@ module myDesign(clock, reset,
 			);
 
 //-----------------
-   roundRobin rR_inst(.reset(reset), .clock(clock),
+   roundRobin rR_inst(.reset(reset), .clock(clock), .soft_rst(bWY_op_writeDone),
       .in_updateYCtrlPathDoneFlag(mydes_filtYopDone),   .in_updateYwriteDoneFlag(bWY_op_writeDone),
 
       .op_updateYmoduleEnable(wire_updateYmoduleEnable),     .op_writeYvalEnable(wire_writeYvalEnable)

@@ -281,7 +281,7 @@ begin
    s2:
    begin
       reg_wireComputedDiagVal = (tempDataSecond?tempComputedDiagVal2:tempComputedDiagVal1);// mux
-      reg_wireDiagAddr        = (tempDataSecond?tempNonDiagAddr2:tempDiagAddr1);
+      reg_wireDiagAddr        = (tempDataSecond?tempDiagAddr2:tempDiagAddr1);
       reg_wireNonDiagAddr     = (tempDataSecond?tempNonDiagAddr2:tempNonDiagAddr1);
       reg_wireDiagOH          = (tempDataSecond?tempDiagOH2:tempDiagOH1);
       reg_wireNonDiagOH       = (tempDataSecond?tempNonDiagOH2:tempNonDiagOH1);

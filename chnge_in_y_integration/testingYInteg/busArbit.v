@@ -80,11 +80,14 @@ begin
       end//00
       2'b01:
       begin
-         op_yReadAddress1  = in_writePathReadAddr1;
          op_yReadAddress2  = in_writePathReadAddr2;
          op_yWriteEnable   = in_writePathWE;
          op_yWriteAddress  = in_writePathWriteAddr;
          op_writeData      = in_writePathWriteData;
+         if(in_writePathWE)   
+            op_yReadAddress1  = 11'h7ff;
+         else
+            op_yReadAddress1  = in_writePathReadAddr1;
       end//01
       2'b10:
       begin

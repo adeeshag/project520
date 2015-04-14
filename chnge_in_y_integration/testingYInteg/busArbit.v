@@ -26,6 +26,8 @@
 
 module busArbit(input reset,
       input in_yComputeModuleEnable, input in_yWriteModuleEnable,
+      input in_integrateModEnable,
+
       input [10:0] in_controlPathReadAddr1, input [10:0] in_controlPathReadAddr2,
       input in_controlPathWE, input [10:0] in_controlPathWriteAddr,
       input [255:0] in_controlPathWriteData,
@@ -34,6 +36,9 @@ module busArbit(input reset,
       input in_writePathWE, input [10:0] in_writePathWriteAddr,
       input [255:0] in_writePathWriteData,
 
+      input [10:0]  in_computePathReadAddr1, input [10:0]  in_computePathReadAddr2,
+      input in_computePathWE, input [10:0] in_computePathWriteAddr,
+      input [255:0] in_computePathWriteData,
 
       output reg [10:0]  op_yReadAddress1, output reg [10:0]  op_yReadAddress2,
       output reg op_yWriteEnable,          output reg [10:0] op_yWriteAddress,
@@ -62,23 +67,16 @@ begin
    end//reset
    else
    begin
-      case({in_yComputeModuleEnable,in_yWriteModuleEnable})
-      2'b00:
+      case({in_yComputeModuleEnable,in_yWriteModuleEnable,in_integrateModEnable})
+      3'b000:
       begin
-      /*
-         op_yReadAddress1  = in_controlPathReadAddr1;
-         op_yReadAddress2  = in_controlPathReadAddr2;
-         op_yWriteEnable   = in_controlPathWE;
-         op_yWriteAddress  = in_controlPathWriteAddr;
-         op_writeData      = in_controlPathWriteData;
-      */
          op_yReadAddress1  = 11'h7ff;
          op_yReadAddress2  = 11'h56;
          op_yWriteEnable   = 1'b0;
          op_yWriteAddress  = 11'h7ff;
          op_writeData      = 256'b0;
       end//00
-      2'b01:
+      3'b010:
       begin
          op_yReadAddress2  = in_writePathReadAddr2;
          op_yWriteEnable   = in_writePathWE;
@@ -89,13 +87,21 @@ begin
          else
             op_yReadAddress1  = in_writePathReadAddr1;
       end//01
-      2'b10:
+      3'b100:
       begin
          op_yReadAddress1  = in_controlPathReadAddr1;
          op_yReadAddress2  = in_controlPathReadAddr2;
          op_yWriteEnable   = in_controlPathWE;
          op_yWriteAddress  = in_controlPathWriteAddr;
          op_writeData      = in_controlPathWriteData;
+      end//10
+      3'b001:
+      begin
+         op_yReadAddress1  = in_computePathReadAddr1;
+         op_yReadAddress2  = in_computePathReadAddr2;
+         op_yWriteEnable   = in_computePathWE;
+         op_yWriteAddress  = in_computePathWriteAddr;
+         op_writeData      = in_computePathWriteData;
       end//10
       default: // not supposed to happen
       begin

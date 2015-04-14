@@ -7,6 +7,8 @@
  *
  * Output: 1. Read Y SRAM enable
  *         2. Total Iterations Done Flag (for roundRobin.v)
+ *         3. Control VSRAM Section
+ *         4. VSRAM Read control
  * 
  *
  * *****************************************************************/
@@ -14,7 +16,8 @@
 module controlCounterIter( input reset,                  input clock,
                            input in_accumCalcDoneFlag,   input in_enableEntireModule,
 
-                           output reg op_enableAccumCalc, output reg op_allItersDoneFlag
+                           output reg op_enableAccumCalc,      output reg op_allItersDoneFlag,
+                           output reg op_control_vsram_section,   output reg op_vsram_read_control	
       );
 
 /* Wires and Reg */
@@ -27,6 +30,8 @@ reg tempSwitchBit; // This bit is used to make enable low and then high
 reg reg_op_enableAccumCalc, reg_op_allItersDoneFlag;
 reg [5:0] reg_controlCounterVal;
 reg reg_tempSwitchBit; // This bit is used to make enable low and then high
+reg in_accumCalcDoneFlag_reg;
+
 
 //Wires
 
@@ -42,6 +47,7 @@ begin
 
       controlCounterVal    <= 5'd30;
       tempSwitchBit        <= 1'b0;
+      
 
    end// reset
    else
@@ -51,6 +57,7 @@ begin
 
       controlCounterVal    <= reg_controlCounterVal;
       tempSwitchBit        <= reg_tempSwitchBit;
+     
    end// reset is high
 end// always@
 
@@ -89,9 +96,32 @@ begin
    end
 
 
-
    
 end// always@(*)
+
+always@(posedge clock)
+begin
+  in_accumCalcDoneFlag_reg<=in_accumCalcDoneFlag;
+end
+
+always@(posedge clock)
+begin
+   if(!reset)
+   begin
+       op_control_vsram_section   <=1'b1;
+       op_vsram_read_control      <=1'b0;
+   end
+   else
+   begin
+	   if(in_accumCalcDoneFlag_reg&(~in_accumCalcDoneFlag))
+	   begin
+	      op_control_vsram_section   <=    ~op_control_vsram_section;
+	      op_vsram_read_control      <=    ~op_vsram_read_control;
+	   end
+   end//
+	
+end
 endmodule
+
 
 

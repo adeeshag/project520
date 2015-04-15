@@ -431,6 +431,9 @@ begin
       reg_tempNonDiagOH2       = tempNonDiagOH2;
       reg_tempComputedDiagVal2 = tempComputedDiagVal2;
 
+      reg_tempStoreData        = 256'b0;
+      reg_op_readStoreAddr     = 11'h7ff;
+
       reg_op_WEBit             = 1'b1; 
 
       reg_op_writeAddress      = reg_wireNonDiagAddr;

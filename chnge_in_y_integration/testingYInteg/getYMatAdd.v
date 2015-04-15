@@ -28,22 +28,22 @@ begin
    if(readEnable)
    begin
       casex((gYMA_row[3:0]))
-      8'h0:    gYMA_row_addr1 = gYMA_readData[249:240];
-      8'h1:    gYMA_row_addr1 = gYMA_readData[233:224];
-      8'h2:    gYMA_row_addr1 = gYMA_readData[217:208];
-      8'h3:    gYMA_row_addr1 = gYMA_readData[201:192];
-      8'h4:    gYMA_row_addr1 = gYMA_readData[185:176];
-      8'h5:    gYMA_row_addr1 = gYMA_readData[169:160];
-      8'h6:    gYMA_row_addr1 = gYMA_readData[153:144];
-      8'h7:    gYMA_row_addr1 = gYMA_readData[137:128];
-      8'h8:    gYMA_row_addr1 = gYMA_readData[121:112];
-      8'h9:    gYMA_row_addr1 = gYMA_readData[105:96];
-      8'hA:    gYMA_row_addr1 = gYMA_readData[89:80];
-      8'hB:    gYMA_row_addr1 = gYMA_readData[73:64];
-      8'hC:    gYMA_row_addr1 = gYMA_readData[57:48];
-      8'hD:    gYMA_row_addr1 = gYMA_readData[41:32];
-      8'hE:    gYMA_row_addr1 = gYMA_readData[25:16];
-      8'hF:    gYMA_row_addr1 = gYMA_readData[9:0]; //since this is the last col
+      8'h0:    gYMA_row_addr1 = gYMA_readData[250:240];
+      8'h1:    gYMA_row_addr1 = gYMA_readData[234:224];
+      8'h2:    gYMA_row_addr1 = gYMA_readData[218:208];
+      8'h3:    gYMA_row_addr1 = gYMA_readData[202:192];
+      8'h4:    gYMA_row_addr1 = gYMA_readData[186:176];
+      8'h5:    gYMA_row_addr1 = gYMA_readData[170:160];
+      8'h6:    gYMA_row_addr1 = gYMA_readData[154:144];
+      8'h7:    gYMA_row_addr1 = gYMA_readData[138:128];
+      8'h8:    gYMA_row_addr1 = gYMA_readData[122:112];
+      8'h9:    gYMA_row_addr1 = gYMA_readData[106:96];
+      8'hA:    gYMA_row_addr1 = gYMA_readData[90:80];
+      8'hB:    gYMA_row_addr1 = gYMA_readData[74:64];
+      8'hC:    gYMA_row_addr1 = gYMA_readData[58:48];
+      8'hD:    gYMA_row_addr1 = gYMA_readData[42:32];
+      8'hE:    gYMA_row_addr1 = gYMA_readData[26:16];
+      8'hF:    gYMA_row_addr1 = gYMA_readData[10:0]; //since this is the last col
       default: gYMA_row_addr1 = 11'h0;
       endcase
    end
